@@ -1,0 +1,937 @@
+import { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import {
+  Leaf, UserPlus, SignIn, MagnifyingGlass, CaretLeft, Phone, LockKey,
+  UserSquare, ShieldCheck, Handshake, IdentificationCard, SignOut,
+  CheckCircle, House, PencilSimple, Warning, Spinner, User,
+  SunHorizon, Sun, Moon, ArrowRight, CheckFat, SealCheck, DownloadSimple
+} from '@phosphor-icons/react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { useTranslation } from 'react-i18next';
+import axiosClient from './api/axiosClient';
+import { useAuthStore } from './store/useAuthStore';
+import './i18n';
+
+/* ─────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────── */
+const StatusBadge = ({ status }) => {
+  const map = { approved: 'badge-green', pending: 'badge-amber', rejected: 'badge-red' };
+  return <span className={`badge ${map[status] || 'badge-amber'}`}>{status || 'pending'}</span>;
+};
+
+const LangToggle = () => {
+  const { i18n } = useTranslation();
+  useEffect(() => { document.body.setAttribute('lang', i18n.language); }, [i18n.language]);
+  const toggle = (l) => { i18n.changeLanguage(l); localStorage.setItem('pbl_lang', l); document.body.setAttribute('lang', l); };
+  return (
+    <div className="lang-toggle">
+      {['en', 'bn'].map(l => (
+        <button key={l} className={`lang-btn ${i18n.language === l ? 'active' : ''}`}
+          onClick={() => toggle(l)}
+          style={{ fontFamily: l === 'bn' ? 'var(--font-bn)' : 'inherit' }}>
+          {l === 'en' ? 'EN' : 'বাং'}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────
+   NAVBAR  (public landing only)
+───────────────────────────────────────── */
+const Navbar = () => {
+  const { isAuthenticated } = useAuthStore();
+  return (
+    <nav className="navbar">
+      <div className="navbar-brand">
+        <div className="navbar-brand-icon"><Leaf size={18} weight="fill" color="white" /></div>
+        PBL Sheba
+      </div>
+      <div className="navbar-actions">
+        <LangToggle />
+        {isAuthenticated ? (
+          <Link to="/" className="btn btn-primary btn-sm">Dashboard</Link>
+        ) : (
+          <>
+            <Link to="/login"    className="navbar-link">Sign In</Link>
+            <Link to="/register" className="btn btn-primary btn-sm">Register <ArrowRight size={14} weight="bold" /></Link>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+/* ─────────────────────────────────────────
+   INNER SHELL  (post-login)
+───────────────────────────────────────── */
+const Shell = () => {
+  const { logout } = useAuthStore();
+  const { i18n } = useTranslation();
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const toggle = (l) => { i18n.changeLanguage(l); localStorage.setItem('pbl_lang', l); document.body.setAttribute('lang', l); };
+  const at = (path) => location.pathname === path;
+
+  return (
+    <>
+      {/* Top bar */}
+      <div className="inner-topbar">
+        <div className="inner-topbar-brand">
+          <div style={{ width:28, height:28, borderRadius:7, background:'var(--green)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 6px rgba(22,163,74,0.3)' }}>
+            <Leaf size={15} weight="fill" color="white" />
+          </div>
+          PBL Sheba
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <div className="desktop-only-flex" style={{ gap:2 }}>
+            {[['/', 'Home', <House size={15}/>], ['/search', 'Search', <MagnifyingGlass size={15}/>], ['/profile', 'Profile', <User size={15}/>]].map(([p, label, icon]) => (
+              <button key={p} onClick={() => navigate(p)} className="navbar-link" style={{ fontSize:'0.85rem', color: at(p) ? 'var(--green)' : undefined, gap:5 }}>
+                {icon} {label}
+              </button>
+            ))}
+          </div>
+          <LangToggle />
+          <button className="btn btn-ghost btn-sm" onClick={() => { logout(); navigate('/'); }} style={{ padding:'0 10px', color:'var(--grey-400)' }} title="Sign out">
+            <SignOut size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom tab bar */}
+      <nav className="bottom-nav">
+        {[['/','Home', House], ['/search','Search', MagnifyingGlass], ['/profile','Profile', User]].map(([path, label, Icon]) => (
+          <button key={path} onClick={() => navigate(path)} className={`bottom-nav-item${at(path) ? ' active' : ''}`}>
+            <Icon size={22} weight={at(path) ? 'fill' : 'regular'} />
+            {label}
+          </button>
+        ))}
+      </nav>
+    </>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   LANDING PAGE
+═══════════════════════════════════════════ */
+const HomePage = () => {
+  const { t } = useTranslation();
+  const [q, setQ] = useState({ name: '', fatherName: '', nid: '' });
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const hasInput = q.name.trim() || q.fatherName.trim() || q.nid.trim();
+    if (!hasInput) { setResults(null); return; }
+    const timer = setTimeout(() => {
+      setLoading(true);
+      const p = new URLSearchParams();
+      if (q.name.trim())       p.append('name', q.name.trim());
+      if (q.fatherName.trim()) p.append('fatherName', q.fatherName.trim());
+      if (q.nid.trim())        p.append('nid', q.nid.trim());
+      axiosClient.get(`/public/search?${p}`)
+        .then(({ data }) => setResults(data)).catch(() => setResults([])).finally(() => setLoading(false));
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [q]);
+
+  return (
+    <div style={{ background:'var(--grey-50)', minHeight:'100vh' }}>
+      <Navbar />
+
+      {/* ── HERO ── */}
+      <section className="hero fade-up">
+        <div className="hero-badge">
+          <SealCheck size={13} weight="fill" />
+          Trusted community platform
+        </div>
+        <h1>
+          {t('brand_name')} — <span className="accent">Member</span> Registry
+        </h1>
+        <p className="hero-desc">
+          {t('welcome') || 'A secure digital platform for PBL Sheba Somaj members to register, get verified, and stay connected.'}
+        </p>
+        <div className="hero-cta">
+          <Link to="/register" className="btn btn-primary btn-lg">
+            <UserPlus size={20} weight="bold" />
+            {t('start_registration')}
+          </Link>
+          <Link to="/login" className="btn btn-outline btn-lg">
+            <SignIn size={20} />
+            {t('sign_in')}
+          </Link>
+        </div>
+      </section>
+
+      {/* ── TRUST STRIP ── */}
+      <div className="trust-strip">
+        <div className="trust-item"><CheckFat size={15} weight="fill" /> Verified member records</div>
+        <div className="trust-item"><ShieldCheck size={15} weight="fill" /> Secure &amp; private data</div>
+        <div className="trust-item"><Handshake size={15} weight="fill" /> Community welfare</div>
+      </div>
+
+      {/* ── PUBLIC SEARCH ── */}
+      <div className="public-search-section">
+        <p className="section-eyebrow">Public Verification</p>
+        <h2 className="section-title">{t('verify_public_records') || 'Verify a Member'}</h2>
+        <p className="section-desc">Search the registry to confirm any member's status — no login needed.</p>
+
+        <div className="search-card">
+          <div style={{ position:'relative', marginBottom:12 }}>
+            <MagnifyingGlass size={18} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--grey-400)', pointerEvents:'none' }} />
+            <input
+              type="text"
+              className="field-input"
+              style={{ paddingLeft:40, height:50, fontSize:'1rem' }}
+              placeholder="Search by full name…"
+              value={q.name}
+              onChange={e => setQ({ ...q, name: e.target.value })}
+              autoComplete="off"
+            />
+          </div>
+          <div className="input-row input-row-2">
+            <div>
+              <label className="field-label">{t('search_father') || "Father's name"}</label>
+              <input type="text" className="field-input" placeholder="—" value={q.fatherName} onChange={e => setQ({ ...q, fatherName: e.target.value })} />
+            </div>
+            <div>
+              <label className="field-label">{t('search_nid') || 'National ID'}</label>
+              <input type="text" className="field-input" placeholder="—" value={q.nid} onChange={e => setQ({ ...q, nid: e.target.value })} />
+            </div>
+          </div>
+        </div>
+
+        {/* Results */}
+        {loading && [1,2].map(i => <div key={i} className="shimmer" style={{ height:66, marginBottom:8, opacity: 1 - i*0.3 }} />)}
+        {!loading && results && results.length > 0 && (
+          <div>
+            <p style={{ fontSize:'0.74rem', fontWeight:800, color:'var(--green)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10, display:'flex', alignItems:'center', gap:6 }}>
+              <CheckCircle size={13} weight="fill" /> {results.length} result{results.length !== 1 ? 's' : ''} found
+            </p>
+            {results.map(u => (
+              <div className="result-item" key={u._id}>
+                {u.imageUrl
+                  ? <img src={u.imageUrl} alt={u.name} className="result-avatar" />
+                  : <div className="result-avatar-init">{u.name?.[0]?.toUpperCase()}</div>}
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div className="result-name">{u.name}</div>
+                  {u.fatherName && <div className="result-sub">Father: {u.fatherName}</div>}
+                </div>
+                <StatusBadge status={u.status} />
+              </div>
+            ))}
+          </div>
+        )}
+        {!loading && results && results.length === 0 && (
+          <div className="empty-hint">
+            <MagnifyingGlass size={36} color="var(--grey-300)" />
+            <p style={{ fontWeight:700, color:'var(--grey-500)', marginTop:8 }}>No members found</p>
+            <p>Try a different name or check the spelling.</p>
+          </div>
+        )}
+        {!results && !loading && (
+          <div className="empty-hint">
+            <MagnifyingGlass size={36} color="var(--grey-300)" />
+            <p style={{ marginTop:8 }}>Type a name to search the member registry</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── FEATURES ── */}
+      <section className="features">
+        <div style={{ textAlign:'center', maxWidth:500, margin:'0 auto 32px' }}>
+          <p className="section-eyebrow" style={{ justifyContent:'center' }}>Why PBL Sheba</p>
+          <h2 style={{ fontSize:'1.5rem', color:'var(--grey-900)', marginBottom:8 }}>Built for your community</h2>
+          <p style={{ color:'var(--grey-400)', fontSize:'0.88rem' }}>Simple, secure, and transparent — everything your society needs in one place.</p>
+        </div>
+        <div className="features-grid">
+          {[
+            { icon: <UserPlus size={22} color="var(--green)" weight="duotone" />, title:'Easy Registration', desc:'Submit your NID and photo — approved by admin, no paperwork.' },
+            { icon: <ShieldCheck size={22} color="var(--green)" weight="duotone" />, title:'Identity Verified', desc:'Admin-reviewed membership with a clear, visible approval status.' },
+            { icon: <Handshake size={22} color="var(--green)" weight="duotone" />, title:'Community Aid', desc:'Access member services and welfare benefits with your verified account.' },
+          ].map(f => (
+            <div key={f.title} className="feature-card">
+              <div className="feature-icon">{f.icon}</div>
+              <p className="feature-title">{f.title}</p>
+              <p className="feature-desc">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="scroll-spacer" />
+      <div className="fixed-actions" style={{ flexDirection:'row' }}>
+        <Link to="/register" className="btn btn-primary" style={{ flex:1 }}><UserPlus size={17} weight="bold" /> Register</Link>
+        <Link to="/login"    className="btn btn-outline" style={{ flex:1 }}><SignIn size={17} /> Sign In</Link>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════ */
+const LoginPage = () => {
+  const navigate = useNavigate();
+  const { t }    = useTranslation();
+  const login    = useAuthStore(s => s.login);
+  const [phone, setPhone]     = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError]     = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); setError(''); setLoading(true);
+    try {
+      const { data } = await axiosClient.post('/auth/login', { phone, password });
+      login(data, data.token);
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Incorrect phone or password.');
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="auth-page fade-up">
+      <div className="auth-topbar">
+        <button className="auth-back" onClick={() => navigate(-1)}><CaretLeft size={15} weight="bold" /> Back</button>
+        <div style={{ marginLeft:'auto' }}><LangToggle /></div>
+      </div>
+      <div className="auth-body">
+        <div className="auth-card">
+          <div className="auth-logo"><Leaf size={22} weight="fill" color="white" /></div>
+          <h1 className="auth-title">Welcome back</h1>
+          <p className="auth-sub">Sign in with your registered phone number and password.</p>
+
+          {error && (
+            <div className="alert-error">
+              <Warning size={16} weight="fill" style={{ flexShrink:0 }} /> {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div className="field-group">
+              <label className="field-label">Phone Number</label>
+              <div className="input-icon-wrap">
+                <Phone size={16} />
+                <input type="tel" className="field-input" placeholder="017-XXXXXXXX" value={phone} onChange={e => setPhone(e.target.value)} required autoFocus />
+              </div>
+            </div>
+            <div className="field-group" style={{ marginBottom:24 }}>
+              <label className="field-label">Password</label>
+              <div className="input-icon-wrap">
+                <LockKey size={16} />
+                <input type="password" className="field-input" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
+              </div>
+            </div>
+            <button type="submit" className="btn btn-primary btn-full" disabled={loading} style={{ height:48 }}>
+              {loading
+                ? <Spinner size={18} style={{ animation:'spin 1s linear infinite' }} />
+                : <><SignIn size={17} /> Sign In</>}
+            </button>
+          </form>
+
+          <div className="auth-divider" />
+          <p className="auth-footer-text">
+            Don't have an account?{' '}
+            <span className="auth-footer-link" onClick={() => navigate('/register')}>Register here</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   REGISTER
+═══════════════════════════════════════════ */
+const RegisterPage = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const [step, setStep] = useState(1);
+  const [settings, setSettings] = useState(null);
+  const [form, setForm] = useState({
+    name:'', fatherName:'', dob:'1990-01-01', nid:'', phone:'',
+    paymentNumber:'', password:'', paymentMethod:'', trxId:'', image:null
+  });
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  useEffect(() => {
+    axiosClient.get('/public/settings').then(r => {
+      setSettings(r.data);
+      if (r.data?.paymentMethods?.length > 0) set('paymentMethod', r.data.paymentMethods[0].name);
+    }).catch(() => {});
+  }, []);
+
+  const submit = async () => {
+    if (!form.trxId) return alert('Transaction ID is required.');
+    try {
+      const fd = new FormData();
+      Object.keys(form).forEach(k => fd.append(k, form[k]));
+      await axiosClient.post('/auth/register', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      alert(t('registration_success') || 'Submitted! Await admin approval.');
+      navigate('/');
+    } catch (err) { alert(err.response?.data?.message || 'Registration failed.'); }
+  };
+
+  const gw = settings?.paymentMethods?.find(p => p.name === form.paymentMethod);
+  const gwColor = gw?.themeColor || 'var(--green)';
+
+  return (
+    <div className="auth-page fade-up">
+      <div className="auth-topbar">
+        <button className="auth-back" onClick={() => step > 1 ? setStep(s => s-1) : navigate(-1)}>
+          <CaretLeft size={15} weight="bold" /> {step > 1 ? 'Back' : 'Home'}
+        </button>
+        <div style={{ marginLeft:'auto' }}><LangToggle /></div>
+      </div>
+      <div className="auth-body">
+        <div className="auth-card">
+          <div className="step-bar">
+            <div className="step-dot done">1</div>
+            <div className={`step-line ${step >= 2 ? 'done' : ''}`} />
+            <div className={`step-dot ${step >= 2 ? 'active' : 'todo'}`}>2</div>
+          </div>
+
+          {step === 1 && (
+            <>
+              <h1 className="auth-title">Create your account</h1>
+              <p className="auth-sub">Fill in your details as they appear on your NID card.</p>
+
+              {[
+                ['Full Name *', 'name', 'text', 'As per NID card', null],
+                ["Father's Name", 'fatherName', 'text', "Father's / husband's name", null],
+                ['National ID *', 'nid', 'text', 'NID number', null],
+              ].map(([label, key, type, ph]) => (
+                <div className="field-group" key={key}>
+                  <label className="field-label">{label}</label>
+                  <input type={type} className="field-input" placeholder={ph} value={form[key]} onChange={e => set(key, e.target.value)} />
+                </div>
+              ))}
+
+              <div className="field-group">
+                <label className="field-label">Phone Number *</label>
+                <div className="input-icon-wrap">
+                  <Phone size={16} />
+                  <input type="tel" className="field-input" placeholder="017-XXXXXXXX" value={form.phone} onChange={e => set('phone', e.target.value)} required />
+                </div>
+              </div>
+              <div className="field-group">
+                <label className="field-label">Password *</label>
+                <div className="input-icon-wrap">
+                  <LockKey size={16} />
+                  <input type="password" className="field-input" placeholder="Choose a password" value={form.password} onChange={e => set('password', e.target.value)} required />
+                </div>
+              </div>
+              <div className="field-group" style={{ marginBottom:24 }}>
+                <label className="field-label">Profile Photo *</label>
+                <input type="file" className="field-input" accept="image/*" onChange={e => set('image', e.target.files[0])} required style={{ height:'auto', padding:'10px 14px', fontSize:'0.875rem', background:'var(--grey-50)' }} />
+              </div>
+              <div className="form-spacer" />
+              <div className="fixed-actions">
+                <button className="btn btn-primary btn-full" style={{ height:48 }}
+                  onClick={() => { if (!form.name||!form.phone||!form.nid||!form.password||!form.image) return alert('Complete all required fields.'); setStep(2); }}>
+                  Continue <ArrowRight size={17} weight="bold" />
+                </button>
+              </div>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <h1 className="auth-title">Complete Payment</h1>
+              <p className="auth-sub">Send the registration fee via your preferred method and enter the transaction ID.</p>
+
+              {!settings ? (
+                <p style={{ color:'var(--grey-400)', textAlign:'center', padding:'24px 0', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                  <Spinner size={16} style={{ animation:'spin 1s linear infinite' }} /> Loading…
+                </p>
+              ) : (
+                <>
+                  <div style={{ display:'flex', gap:10, marginBottom:20 }}>
+                    {settings.paymentMethods?.map(pm => (
+                      <div key={pm.name} className={`pm-card ${form.paymentMethod===pm.name?'selected':''}`}
+                        onClick={() => set('paymentMethod', pm.name)}
+                        style={{ borderColor: form.paymentMethod===pm.name ? pm.themeColor||'var(--green)' : undefined }}>
+                        <img src={pm.logoUrl||'https://via.placeholder.com/80x32?text=Pay'} alt={pm.name} />
+                        <span>{pm.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {gw && (
+                    <div className="payment-info-box">
+                      <p className="payment-info-amount">{settings.registrationFee} ৳</p>
+                      <p className="payment-info-row"><strong>Send to:</strong> {gw.number}</p>
+                      {gw.instructions && <p className="payment-info-row"><strong>Note:</strong> {gw.instructions}</p>}
+                    </div>
+                  )}
+                  <div className="field-group">
+                    <label className="field-label">Your {form.paymentMethod||'payment'} number *</label>
+                    <div className="input-icon-wrap">
+                      <Phone size={16} />
+                      <input type="tel" className="field-input" placeholder="017-XXXXXXXX" value={form.paymentNumber} onChange={e => set('paymentNumber', e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="field-group" style={{ marginBottom:24 }}>
+                    <label className="field-label">Transaction ID (TrxID) *</label>
+                    <input type="text" className="field-input" placeholder="e.g. 7H9B3K2X" value={form.trxId} onChange={e => set('trxId', e.target.value)} required />
+                  </div>
+                  <div className="form-spacer" />
+                  <div className="fixed-actions">
+                    <button className="btn btn-primary btn-full" style={{ height:48, background:gwColor }} onClick={submit}>
+                      <CheckFat size={17} weight="bold" /> Submit Registration
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════ */
+const DashboardPage = () => {
+  const { user } = useAuthStore();
+  const navigate  = useNavigate();
+
+  const hour = new Date().getHours();
+  const [GreetIcon, greeting] = hour < 12
+    ? [SunHorizon, 'Good morning']
+    : hour < 18
+      ? [Sun, 'Good afternoon']
+      : [Moon, 'Good evening'];
+
+  return (
+    <div className="inner-page">
+      <Shell />
+      <div className="page-body fade-up">
+
+        {/* Profile hero — top heatmap priority */}
+        <div className="profile-hero-card">
+          <div className="profile-hero-inner">
+            {user.imageUrl
+              ? <img src={user.imageUrl} alt={user.name} className="profile-avatar-img" />
+              : <div className="profile-avatar-init">{user.name?.[0]?.toUpperCase()}</div>}
+            <div style={{ flex:1, minWidth:0 }}>
+              <p className="profile-greeting">
+                <GreetIcon size={13} weight="fill" color="var(--green)" />
+                {greeting}
+              </p>
+              <h2 className="profile-name">{user.name}</h2>
+              <StatusBadge status={user.status} />
+            </div>
+          </div>
+        </div>
+
+        {/* Stat pills */}
+        <div className="stat-row">
+          <div className="stat-pill accent">
+            <p className="stat-label">Status</p>
+            <p className="stat-value" style={{ textTransform:'capitalize' }}>{user.status || 'pending'}</p>
+          </div>
+          <div className="stat-pill">
+            <p className="stat-label">NID</p>
+            <p className="stat-value" style={{ fontFamily:'monospace', fontSize:'0.78rem' }}>{user.nid || '—'}</p>
+          </div>
+          <div className="stat-pill">
+            <p className="stat-label">Phone</p>
+            <p className="stat-value" style={{ fontSize:'0.78rem' }}>{user.phone || '—'}</p>
+          </div>
+        </div>
+
+        {/* Quick actions */}
+        <span className="section-eyebrow-sm">Quick Actions</span>
+        <div className="quick-grid">
+          <div className="quick-card" onClick={() => navigate('/profile')}>
+            <div className="quick-card-icon">
+              <IdentificationCard size={21} color="var(--green)" weight="duotone" />
+            </div>
+            <div>
+              <p className="quick-card-label">My Records</p>
+              <p className="quick-card-sub">View &amp; request corrections</p>
+            </div>
+          </div>
+          <div className="quick-card" onClick={() => navigate('/search')}>
+            <div className="quick-card-icon" style={{ background:'var(--blue-light)', borderColor:'var(--blue-border)' }}>
+              <MagnifyingGlass size={21} color="var(--blue)" weight="duotone" />
+            </div>
+            <div>
+              <p className="quick-card-label">Verify Member</p>
+              <p className="quick-card-sub">Search the registry</p>
+            </div>
+          </div>
+        </div>
+
+        {/* About */}
+        <span className="section-eyebrow-sm">About</span>
+        <div className="data-card">
+          <div className="data-card-header">
+            <Leaf size={13} weight="fill" color="var(--green)" />
+            PBL Sheba Somaj
+          </div>
+          <div className="data-row">
+            <span className="data-label"><House size={14} /> Society</span>
+            <span className="data-value">PBL Sheba Somaj</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label"><ShieldCheck size={14} /> Platform</span>
+            <span className="data-value">Member Registry System</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   SEARCH PAGE
+═══════════════════════════════════════════ */
+const SearchPage = () => {
+  const { t } = useTranslation();
+  const [q, setQ] = useState({ name:'', fatherName:'', nid:'' });
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  useEffect(() => {
+    const hasInput = q.name.trim() || q.fatherName.trim() || q.nid.trim();
+    if (!hasInput) { setResults([]); setSearched(false); return; }
+    setSearched(true);
+    const timer = setTimeout(() => {
+      setLoading(true);
+      const p = new URLSearchParams();
+      if (q.name.trim())       p.append('name', q.name.trim());
+      if (q.fatherName.trim()) p.append('fatherName', q.fatherName.trim());
+      if (q.nid.trim())        p.append('nid', q.nid.trim());
+      axiosClient.get(`/users/search?${p}`)
+        .then(({ data }) => setResults(data)).catch(() => setResults([])).finally(() => setLoading(false));
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [q]);
+
+  return (
+    <div className="inner-page">
+      <Shell />
+      <div className="page-body fade-up">
+        <h1 style={{ fontSize:'1.35rem', fontWeight:800, color:'var(--grey-900)', marginBottom:4 }}>
+          {t('search_members') || 'Member Search'}
+        </h1>
+        <p style={{ fontSize:'0.875rem', color:'var(--grey-400)', marginBottom:20 }}>
+          Verify approved members from the society registry.
+        </p>
+
+        {/* Primary search bar */}
+        <div style={{ position:'relative', marginBottom:10 }}>
+          <MagnifyingGlass size={18} style={{ position:'absolute', left:13, top:'50%', transform:'translateY(-50%)', color:'var(--grey-400)', pointerEvents:'none' }} />
+          <input
+            type="text"
+            className="field-input"
+            style={{ paddingLeft:42, height:52, fontSize:'1rem', borderRadius:'var(--radius-lg)', borderTop:'3px solid var(--green)' }}
+            placeholder="Search by name…"
+            value={q.name}
+            onChange={e => setQ({ ...q, name: e.target.value })}
+            autoFocus
+          />
+        </div>
+
+        {/* Secondary filters */}
+        <div className="input-row input-row-2" style={{ marginBottom:24 }}>
+          <input type="text" className="field-input" placeholder="Father's name" value={q.fatherName} onChange={e => setQ({ ...q, fatherName: e.target.value })} style={{ fontSize:'0.875rem' }} />
+          <input type="text" className="field-input" placeholder="NID number" value={q.nid} onChange={e => setQ({ ...q, nid: e.target.value })} style={{ fontSize:'0.875rem' }} />
+        </div>
+
+        {loading && [1,2,3].map(i => <div key={i} className="shimmer" style={{ height:66, marginBottom:8, opacity: 1 - i*0.25 }} />)}
+        {!loading && searched && results.length === 0 && (
+          <div className="empty-hint">
+            <MagnifyingGlass size={36} color="var(--grey-300)" />
+            <p style={{ fontWeight:700, color:'var(--grey-500)', marginTop:8 }}>No members found</p>
+            <p>Try a different name or adjust your search.</p>
+          </div>
+        )}
+        {!loading && !searched && (
+          <div className="empty-hint" style={{ paddingTop:12 }}>
+            <MagnifyingGlass size={36} color="var(--grey-300)" />
+            <p style={{ marginTop:8 }}>Start typing to search the registry</p>
+          </div>
+        )}
+        {!loading && searched && results.length > 0 && (
+          <>
+            <p style={{ fontSize:'0.72rem', fontWeight:800, color:'var(--green)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10, display:'flex', alignItems:'center', gap:6 }}>
+              <CheckCircle size={13} weight="fill" /> {results.length} result{results.length !== 1 ? 's' : ''}
+            </p>
+            {results.map(u => (
+              <div className="result-item" key={u._id}>
+                {u.imageUrl
+                  ? <img src={u.imageUrl} alt={u.name} className="result-avatar" />
+                  : <div className="result-avatar-init">{u.name?.[0]?.toUpperCase()}</div>}
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div className="result-name">{u.name}</div>
+                  {u.fatherName && <div className="result-sub">Father: {u.fatherName}</div>}
+                </div>
+                <StatusBadge status={u.status} />
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   PROFILE PAGE
+═══════════════════════════════════════════ */
+const ProfilePage = () => {
+  const { user } = useAuthStore();
+  const { t } = useTranslation();
+  const [correction, setCorrection] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const idCardRef = useRef(null);
+
+  if (!user) return null;
+
+  const submitCorrection = async (e) => {
+    e.preventDefault(); setSubmitting(true);
+    try {
+      await axiosClient.patch('/users/request-edit', { requestedChanges: { explanation: correction } });
+      setSubmitted(true); setCorrection('');
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch { alert('Error submitting. Please try again.'); }
+    finally { setSubmitting(false); }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!idCardRef.current) return;
+    setGeneratingPdf(true);
+    try {
+      const canvas = await html2canvas(idCardRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: null
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: [400, canvas.height * (400 / canvas.width)]
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, 400, canvas.height * (400 / canvas.width));
+      pdf.save(`${user.name.replace(/\s+/g, '_')}_ID_Card.pdf`);
+    } catch (err) {
+      console.error('PDF error', err);
+      alert('Failed to generate PDF. Make sure your profile picture is accessible.');
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
+  return (
+    <div className="inner-page">
+      <Shell />
+      <div className="page-body fade-up">
+
+        {/* Profile hero */}
+        <div className="profile-hero-card">
+          <div className="profile-hero-inner">
+            {user.imageUrl
+              ? <img src={user.imageUrl} alt={user.name} className="profile-avatar-img" />
+              : <div className="profile-avatar-init">{user.name?.[0]?.toUpperCase()}</div>}
+            <div style={{ flex:1, minWidth:0 }}>
+              <h2 className="profile-name">{user.name}</h2>
+              <p style={{ fontSize:'0.82rem', color:'var(--grey-400)', marginBottom:8, display:'flex', alignItems:'center', gap:5 }}>
+                <Phone size={13} /> {user.phone}
+              </p>
+              <StatusBadge status={user.status} />
+            </div>
+          </div>
+        </div>
+
+        <button onClick={handleDownloadPdf} disabled={generatingPdf} className="btn btn-outline btn-full" style={{ marginBottom: 20, height: 44 }}>
+           {generatingPdf ? <><Spinner size={18} style={{ animation: 'spin 1s linear infinite' }} /> Generating PDF...</> : <><DownloadSimple size={18} weight="bold" /> Download ID Card</>}
+        </button>
+
+        {/* Identity records */}
+        <span className="section-eyebrow-sm">Identity Records</span>
+        <div className="data-card">
+          <div className="data-card-header">
+            <IdentificationCard size={13} weight="fill" color="var(--green)" />
+            Official Information
+          </div>
+          <div className="data-row">
+            <span className="data-label"><User size={13} /> {t('full_name')||'Full Name'}</span>
+            <span className="data-value">{user.name||'—'}</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label"><User size={13} /> {t('father_name')||"Father's Name"}</span>
+            <span className="data-value">{user.fatherName||'—'}</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label"><IdentificationCard size={13} /> {t('nid')||'National ID'}</span>
+            <span className="data-value mono">{user.nid||'—'}</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label"><Phone size={13} /> {t('phone')||'Phone'}</span>
+            <span className="data-value mono">{user.phone||'—'}</span>
+          </div>
+        </div>
+
+        {/* Correction form — lower visual priority */}
+        <span className="section-eyebrow-sm">Corrections</span>
+        <div className="action-card">
+          <p className="action-card-title">
+            <PencilSimple size={15} color="var(--green)" />
+            {t('request_correction')||'Request a Correction'}
+          </p>
+          <p className="action-card-desc">
+            {t('found_mistake')||'If there is an error in your records, describe it below. Our team will review within 48 hours.'}
+          </p>
+
+          {submitted ? (
+            <div className="alert-success">
+              <CheckCircle size={16} weight="fill" /> Request submitted successfully!
+            </div>
+          ) : (
+            <form onSubmit={submitCorrection}>
+              <textarea
+                className="field-textarea"
+                rows={3}
+                placeholder={t('explain_correction_placeholder')||"Describe the error clearly, e.g. \"My father's name is misspelled, correct spelling: Abdul Karim\""}
+                value={correction}
+                onChange={e => setCorrection(e.target.value)}
+                required
+              />
+              <button type="submit" className="btn btn-outline btn-full" style={{ marginTop:12, height:44 }} disabled={submitting}>
+                {submitting
+                  ? <><Spinner size={15} style={{ animation:'spin 1s linear infinite' }} /> Submitting…</>
+                  : <><CheckCircle size={15} /> {t('submit_request')||'Submit Request'}</>}
+              </button>
+            </form>
+          )}
+        </div>
+
+        {/* --- HIDDEN ID CARD FOR PDF EXPORT --- */}
+        <div className="idc-hide">
+          <div ref={idCardRef} className="id-card-export">
+            <div className="idc-header">
+              <div className="idc-title">PBL Sheba Somaj</div>
+              <div className="idc-subtitle">Member ID Card</div>
+            </div>
+            <div className="idc-body">
+              {user.imageUrl ? (
+                <img src={user.imageUrl} className="idc-avatar" crossOrigin="anonymous" alt="" />
+              ) : (
+                <div className="idc-avatar" style={{ display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3rem', fontWeight:'bold', color:'var(--green-dark)' }}>
+                  {user.name?.[0]?.toUpperCase()}
+                </div>
+              )}
+              <div className="idc-name">{user.name}</div>
+              <div className="idc-status">{user.status} Member</div>
+              
+              <div className="idc-details">
+                <div className="idc-row">
+                  <div className="idc-label">Member ID</div>
+                  <div className="idc-value">{user._id.slice(-8).toUpperCase()}</div>
+                </div>
+                <div className="idc-row">
+                  <div className="idc-label">National ID</div>
+                  <div className="idc-value">{user.nid || '—'}</div>
+                </div>
+                {user.fatherName && (
+                <div className="idc-row">
+                  <div className="idc-label">Father </div>
+                  <div className="idc-value">{user.fatherName}</div>
+                </div>
+                )}
+                <div className="idc-row">
+                  <div className="idc-label">Phone</div>
+                  <div className="idc-value">{user.phone || '—'}</div>
+                </div>
+              </div>
+            </div>
+            <div className="idc-footer">
+              This is a digitally verified identity card.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   FORCE PASSWORD RESET
+═══════════════════════════════════════════ */
+const ForcePasswordReset = () => {
+  const [pw, setPw] = useState('');
+  const navigate = useNavigate();
+  const submit = async (e) => {
+    e.preventDefault();
+    try {
+      await axiosClient.patch('/users/change-password', { newPassword: pw });
+      alert('Password updated! Please sign in again.');
+      useAuthStore.getState().logout();
+      navigate('/login');
+    } catch { alert('Error. Please try again.'); }
+  };
+  return (
+    <div className="auth-page fade-up">
+      <div className="auth-body" style={{ display:'flex', flexDirection:'column', justifyContent:'center' }}>
+        <div className="auth-card">
+          <div className="auth-logo"><ShieldCheck size={22} weight="fill" color="white" /></div>
+          <h1 className="auth-title">Set a new password</h1>
+          <p className="auth-sub">You need to create a permanent password before continuing.</p>
+          <form onSubmit={submit}>
+            <div className="field-group" style={{ marginBottom:20 }}>
+              <label className="field-label">New Password</label>
+              <div className="input-icon-wrap">
+                <LockKey size={16} />
+                <input type="password" className="field-input" placeholder="Choose a secure password" value={pw} onChange={e => setPw(e.target.value)} required />
+              </div>
+            </div>
+            <button type="submit" className="btn btn-primary btn-full" style={{ height:48 }}>
+              <CheckFat size={17} weight="bold" /> Save Password
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   APP ROOT
+═══════════════════════════════════════════ */
+export default function App() {
+  const { isAuthenticated, user } = useAuthStore();
+
+  if (isAuthenticated && user?.firstLogin && user?.role !== 'member') {
+    return (
+      <Router>
+        <Routes><Route path="*" element={<ForcePasswordReset />} /></Routes>
+      </Router>
+    );
+  }
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/"         element={isAuthenticated ? <DashboardPage /> : <HomePage />} />
+        <Route path="/login"    element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/search"   element={<SearchPage />} />
+        <Route path="/profile"  element={<ProfilePage />} />
+      </Routes>
+    </Router>
+  );
+}

@@ -1,0 +1,166 @@
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+const resources = {
+  en: {
+    translation: {
+      "welcome":             "Welcome to your community system. Manage registrations, track your impact, and help those in need across Bangladesh.",
+      "verifying_title":     "Verify a Member",
+      "verifying_desc":      "Search the public directory by name, father's name, or NID number.",
+      "search_name":         "Member Name",
+      "search_father":       "Father's Name",
+      "search_nid":          "NID Number",
+      "searching":           "Searching…",
+      "no_match":            "No matching member found.",
+      "start_registration":  "Start Registration",
+      "sign_in":             "Sign In",
+      "search_members":      "Search Members",
+      "new_member":          "New Member",
+      "full_name":           "Full Name",
+      "father_name":         "Father / Husband Name",
+      "nid":                 "NID Number",
+      "phone":               "Phone Number",
+      "notice":              "Your registration will remain pending until an admin verifies payment of 365 TK.",
+      "continue":            "Continue",
+      "complete_registration":"Complete Registration",
+      "back":                "Back",
+      "welcome_back":        "Welcome Back",
+      "sign_in_continue":    "Sign in to your account",
+      "password":            "Password",
+      "logout":              "Logout",
+      "my_profile":          "My Profile",
+      "found_mistake":       "Found a mistake in your NID or Name? Submit a request to the Owner.",
+      "request_correction":  "Request Correction",
+      "submit_request":      "Submit Request",
+      "live_results":        "Live Results",
+      "no_results_yet":      "No results yet. Start typing above.",
+      "payment_gateway":     "Payment Gateway",
+      "fee_label":           "Registration Fee",
+      "send_to":             "Send to",
+      "process":             "Process",
+      "your_payment_number": "Your bKash / Nagad Number",
+      "transaction_id":      "Transaction ID (TrxID)",
+      "join_title":          "Join the Network",
+      "secure_payment":      "Secure Payment",
+      "join_desc":           "Enter your verifiable NID details to proceed to payment.",
+      "payment_desc":        "Complete your registration fee via mobile banking.",
+      "verify_title":        "Verify Public Records",
+      "identity_records":    "Identity Records",
+      "loading_payment":     "Loading payment options…",
+
+      // Branding & Landing
+      "brand_name":          "PBL Sheba",
+      "verify_public_records":"Verify Public Records",
+      "empowering_community":"Empowering Our Community",
+      "register_seamlessly": "1. Register Seamlessly",
+      "register_seamlessly_desc": "Input your identity and await secure admin verification.",
+      "secure_network":      "2. Secure Network",
+      "secure_network_desc": "All funds and member records are vetted rigorously for deep trust.",
+      "receive_aid":         "3. Receive Aid",
+      "receive_aid_desc":    "Gain access to crucial organizational support resources effortlessly.",
+      
+      // UI / State
+      "view_profile_btn":    "View My Profile",
+      "interrogating_db":    "Interrogating Database...",
+      "verified_status":    "Verified",
+      "no_matches":         "No exact matches yet.",
+      "identity_records":    "Identity Records",
+      "explain_correction_placeholder": "Explain what needs to be fixed...",
+      "edit_request_success": "Edit request submitted to Admin.",
+      "registration_success": "Registration successful! Waiting for approval.",
+      
+      // Security
+      "network_security_lock": "Network Security Lock",
+      "security_action_required": "Action Required",
+      "security_change_pass_desc": "Your account requires a secure password change before the first login.",
+      "new_secure_pass_label": "New Secure Password",
+      "lock_save_pass_btn":   "Lock & Save Password",
+    }
+  },
+  bn: {
+    translation: {
+      "welcome":             "আপনার কমিউনিটি সিস্টেমে স্বাগতম। নিবন্ধন পরিচালনা করুন এবং বাংলাদেশের মানুষের সাহায্য করুন।",
+      "verifying_title":     "সদস্য যাচাই করুন",
+      "verifying_desc":      "নাম, পিতার নাম বা এনআইডি দিয়ে পাবলিক ডিরেক্টরি খুঁজুন।",
+      "search_name":         "সদস্যের নাম",
+      "search_father":       "পিতার নাম",
+      "search_nid":          "এনআইডি নম্বর",
+      "searching":           "অনুসন্ধান হচ্ছে…",
+      "no_match":            "কোনো মিলসম্পন্ন সদস্য পাওয়া যায়নি।",
+      "start_registration":  "নিবন্ধন শুরু করুন",
+      "sign_in":             "প্রবেশ করুন",
+      "search_members":      "সদস্য খুঁজুন",
+      "new_member":          "নতুন সদস্য",
+      "full_name":           "পূর্ণ নাম",
+      "father_name":         "পিতা/স্বামীর নাম",
+      "nid":                 "এনআইডি নম্বর",
+      "phone":               "মোবাইল নম্বর",
+      "notice":              "৩৬৫ টাকা পেমেন্ট যাচাই না হওয়া পর্যন্ত আপনার নিবন্ধন পেন্ডিং থাকবে।",
+      "continue":            "পরবর্তী",
+      "complete_registration":"নিবন্ধন সম্পন্ন করুন",
+      "back":                "ফিরে যান",
+      "welcome_back":        "পুনরায় স্বাগতম",
+      "sign_in_continue":    "আপনার অ্যাকাউন্টে প্রবেশ করুন",
+      "password":            "পাসওয়ার্ড",
+      "logout":              "লগআউট",
+      "my_profile":          "আমার প্রোফাইল",
+      "found_mistake":       "আপনার এনআইডি বা নামে ভুল পেয়েছেন? মালিকের কাছে সংশোধনের অনুরোধ দিন।",
+      "request_correction":  "সংশোধন অনুরোধ",
+      "submit_request":      "অনুরোধ জমা দিন",
+      "live_results":        "সরাসরি ফলাফল",
+      "no_results_yet":      "এখনও কোনো ফলাফল নেই। উপরে লিখতে শুরু করুন।",
+      "payment_gateway":     "পেমেন্ট গেটওয়ে",
+      "fee_label":           "নিবন্ধন ফি",
+      "send_to":             "পাঠান",
+      "process":             "প্রক্রিয়া",
+      "your_payment_number": "আপনার বিকাশ / নগদ নম্বর",
+      "transaction_id":      "লেনদেন আইডি (TrxID)",
+      "join_title":          "নেটওয়ার্কে যোগ দিন",
+      "secure_payment":      "নিরাপদ পেমেন্ট",
+      "join_desc":           "পেমেন্টে যেতে আপনার এনআইডি তথ্য পূরণ করুন।",
+      "payment_desc":        "মোবাইল ব্যাংকিংয়ের মাধ্যমে নিবন্ধন ফি পরিশোধ করুন।",
+      "verify_title":        "পাবলিক রেকর্ড যাচাই",
+      "identity_records":    "পরিচয় রেকর্ড",
+      "loading_payment":     "পেমেন্ট অপশন লোড হচ্ছে…",
+
+      // Branding & Landing
+      "brand_name":          "পিবিএল সেবা",
+      "verify_public_records":"পাবলিক রেকর্ড যাচাই করুন",
+      "empowering_community":"আমাদের কমিউনিটিকে শক্তিশালী করছি",
+      "register_seamlessly": "১. নিরবচ্ছিন্নভাবে নিবন্ধন করুন",
+      "register_seamlessly_desc": "আপনার পরিচয় দিন এবং অ্যাডমিন যাচাইয়ের জন্য অপেক্ষা করুন।",
+      "secure_network":      "২. নিরাপদ নেটওয়ার্ক",
+      "secure_network_desc": "গভীর আস্থার জন্য সমস্ত তহবিল এবং সদস্য রেকর্ড কঠোরভাবে যাচাই করা হয়।",
+      "receive_aid":         "৩. সহায়তা গ্রহণ করুন",
+      "receive_aid_desc":    "অনায়াসে সাংগঠনিক সহায়তা সংস্থানগুলোতে প্রবেশাধিকার পান।",
+      
+      // UI / State
+      "view_profile_btn":    "আমার প্রোফাইল দেখুন",
+      "interrogating_db":    "ডেটাবেস চেক করা হচ্ছে...",
+      "verified_status":    "যাচাইকৃত",
+      "no_matches":         "এখনও কোনো মিল পাওয়া যায়নি।",
+      "identity_records":    "পরিচয় রেকর্ড",
+      "explain_correction_placeholder": "যা সংশোধন করা দরকার তা ব্যাখ্যা করুন...",
+      "edit_request_success": "সংশোধন অনুরোধ অ্যাডমিনের কাছে জমা দেওয়া হয়েছে।",
+      "registration_success": "নিবন্ধন সফল হয়েছে! অনুমোদনের জন্য অপেক্ষা করুন।",
+      
+      // Security
+      "network_security_lock": "নেটওয়ার্ক নিরাপত্তা লক",
+      "security_action_required": "পদক্ষেপ প্রয়োজন",
+      "security_change_pass_desc": "প্রথম লগইনের আগে আপনার অ্যাকাউন্টের পাসওয়ার্ড পরিবর্তন করা প্রয়োজন।",
+      "new_secure_pass_label": "নতুন নিরাপদ পাসওয়ার্ড",
+      "lock_save_pass_btn":   "লক এবং পাসওয়ার্ড সংরক্ষণ করুন",
+    }
+  }
+};
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources,
+    lng: localStorage.getItem('pbl_lang') || 'en',
+    fallbackLng: 'en',
+    interpolation: { escapeValue: false }
+  });
+
+export default i18n;
