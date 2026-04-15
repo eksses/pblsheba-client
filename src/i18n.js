@@ -99,7 +99,7 @@ const resources = {
       "tin_shed": "Tin Shed",
       "brick_built": "Brick Built",
       "mud_house": "Mud House",
-      "edit_request": "Edit Request"
+      "edit_requests": "Edit Request"
     }
   },
   bn: {
@@ -147,7 +147,7 @@ const resources = {
       "verify_title": "পাবলিক রেকর্ড যাচাই",
       "identity_records": "পরিচয় রেকর্ড",
       "loading_payment": "পেমেন্ট অপশন লোড হচ্ছে…",
-      "edit_request": "সংশোধন অনুরোধ",
+      "edit_requests": "সংশোধন অনুরোধ",
 
       // Branding & Landing
       "brand_name": "পিবিএল সেবা",
