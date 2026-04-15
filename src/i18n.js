@@ -75,6 +75,30 @@ const resources = {
       "security_change_pass_desc": "Your account requires a secure password change before the first login.",
       "new_secure_pass_label": "New Secure Password",
       "lock_save_pass_btn":   "Lock & Save Password",
+
+      // Survey
+      "survey":             "Survey",
+      "name_label":         "Full Name",
+      "fathers_husband_label": "Father's / Husband's Name",
+      "ward_label":         "Ward No",
+      "farm_animals_label": "Farm Animals",
+      "farmable_land_label":"Farmable Land",
+      "house_type_label":   "House Type",
+      "family_members_label":"Family Members",
+      "gender_label":       "Gender",
+      "children_boy_label": "Children (Boy)",
+      "children_girl_label":"Children (Girl)",
+      "income_label":       "Monthly Income",
+      "phone_label":        "Phone Number",
+      "submit_survey":      "Submit Survey",
+      "success_survey":     "Survey submitted successfully!",
+      "duplicate_survey":   "A survey with this phone number already exists.",
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "tin_shed": "Tin Shed",
+      "brick_built": "Brick Built",
+      "mud_house": "Mud House"
     }
   },
   bn: {
@@ -150,6 +174,30 @@ const resources = {
       "security_change_pass_desc": "প্রথম লগইনের আগে আপনার অ্যাকাউন্টের পাসওয়ার্ড পরিবর্তন করা প্রয়োজন।",
       "new_secure_pass_label": "নতুন নিরাপদ পাসওয়ার্ড",
       "lock_save_pass_btn":   "লক এবং পাসওয়ার্ড সংরক্ষণ করুন",
+
+      // Survey
+      "survey":             "জরিপ",
+      "name_label":         "পুরো নাম",
+      "fathers_husband_label": "পিতা / স্বামীর নাম",
+      "ward_label":         "ওয়ার্ড নং",
+      "farm_animals_label": "গৃহপালিত পশু",
+      "farmable_land_label":"চাষযোগ্য জমি",
+      "house_type_label":   "বাড়ির ধরণ",
+      "family_members_label":"পরিবারের সদস্য",
+      "gender_label":       "লিঙ্গ",
+      "children_boy_label": "সন্তান (ছেলে)",
+      "children_girl_label":"সন্তান (মেয়ে)",
+      "income_label":       "মাসিক আয়",
+      "phone_label":        "মোবাইল নম্বর",
+      "submit_survey":      "জরিপ জমা দিন",
+      "success_survey":     "জরিপ সফলভাবে জমা হয়েছে!",
+      "duplicate_survey":   "এই ফোন নম্বর দিয়ে ইতিমধ্যে একটি জরিপ জমা দেয়া হয়েছে।",
+      "male": "পুরুষ",
+      "female": "মহিলা",
+      "other": "অন্যান্য",
+      "tin_shed": "টিন শেড",
+      "brick_built": "পাঁকা বাড়ি",
+      "mud_house": "কাঁচা বাড়ি"
     }
   }
 };

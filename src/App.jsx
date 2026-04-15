@@ -4,7 +4,8 @@ import {
   Leaf, UserPlus, SignIn, MagnifyingGlass, CaretLeft, Phone, LockKey,
   UserSquare, ShieldCheck, Handshake, IdentificationCard, SignOut,
   CheckCircle, House, PencilSimple, Warning, Spinner, User,
-  SunHorizon, Sun, Moon, ArrowRight, CheckFat, SealCheck, DownloadSimple
+  SunHorizon, Sun, Moon, ArrowRight, CheckFat, SealCheck, DownloadSimple,
+  ClipboardText
 } from '@phosphor-icons/react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -45,9 +46,9 @@ const Navbar = () => {
   const { isAuthenticated } = useAuthStore();
   return (
     <nav className="navbar">
-      <div className="navbar-brand">
-        <div className="navbar-brand-icon"><Leaf size={18} weight="fill" color="white" /></div>
-        PBL Sheba
+      <div className="navbar-brand" style={{ display:'flex', alignItems:'center', gap:10 }}>
+        <img src="/logo.png" alt="PBL Sheba" style={{ width:32, height:32, borderRadius:8 }} />
+        <span style={{ fontWeight:900, fontSize:'1.2rem', letterSpacing:'-0.02em' }}>PBL Sheba</span>
       </div>
       <div className="navbar-actions">
         <LangToggle />
@@ -79,15 +80,13 @@ const Shell = () => {
     <>
       {/* Top bar */}
       <div className="inner-topbar">
-        <div className="inner-topbar-brand">
-          <div style={{ width:28, height:28, borderRadius:7, background:'var(--green)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 6px rgba(22,163,74,0.3)' }}>
-            <Leaf size={15} weight="fill" color="white" />
-          </div>
+        <div className="inner-topbar-brand" style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <img src="/logo.png" alt="Logo" style={{ width:28, height:28, borderRadius:6 }} />
           PBL Sheba
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:6 }}>
           <div className="desktop-only-flex" style={{ gap:2 }}>
-            {[['/', 'Home', <House size={15}/>], ['/search', 'Search', <MagnifyingGlass size={15}/>], ['/profile', 'Profile', <User size={15}/>]].map(([p, label, icon]) => (
+            {[['/', 'Home', <House size={15}/>], ['/search', 'Search', <MagnifyingGlass size={15}/>], ['/survey', 'Survey', <ClipboardText size={15}/>], ['/profile', 'Profile', <User size={15}/>]].map(([p, label, icon]) => (
               <button key={p} onClick={() => navigate(p)} className="navbar-link" style={{ fontSize:'0.85rem', color: at(p) ? 'var(--green)' : undefined, gap:5 }}>
                 {icon} {label}
               </button>
@@ -102,7 +101,7 @@ const Shell = () => {
 
       {/* Bottom tab bar */}
       <nav className="bottom-nav">
-        {[['/','Home', House], ['/search','Search', MagnifyingGlass], ['/profile','Profile', User]].map(([path, label, Icon]) => (
+        {[['/','Home', House], ['/search','Search', MagnifyingGlass], ['/survey','Survey', ClipboardText], ['/profile','Profile', User]].map(([path, label, Icon]) => (
           <button key={path} onClick={() => navigate(path)} className={`bottom-nav-item${at(path) ? ' active' : ''}`}>
             <Icon size={22} weight={at(path) ? 'fill' : 'regular'} />
             {label}
@@ -262,10 +261,6 @@ const HomePage = () => {
       </section>
 
       <div className="scroll-spacer" />
-      <div className="fixed-actions" style={{ flexDirection:'row' }}>
-        <Link to="/register" className="btn btn-primary" style={{ flex:1 }}><UserPlus size={17} weight="bold" /> Register</Link>
-        <Link to="/login"    className="btn btn-outline" style={{ flex:1 }}><SignIn size={17} /> Sign In</Link>
-      </div>
     </div>
   );
 };
@@ -301,7 +296,9 @@ const LoginPage = () => {
       </div>
       <div className="auth-body">
         <div className="auth-card">
-          <div className="auth-logo"><Leaf size={22} weight="fill" color="white" /></div>
+          <div className="auth-logo" style={{ background:'none', width:'auto', height:'auto' }}>
+            <img src="/logo.png" alt="PBL Sheba" style={{ width:48, height:48, borderRadius:12 }} />
+          </div>
           <h1 className="auth-title">Welcome back</h1>
           <p className="auth-sub">Sign in with your registered phone number and password.</p>
 
@@ -495,9 +492,151 @@ const RegisterPage = () => {
 };
 
 /* ═══════════════════════════════════════════
+   SURVEY PAGE
+═══════════════════════════════════════════ */
+const SurveyPage = () => {
+  const { t } = useTranslation();
+  const [form, setForm] = useState({
+    name: '', fathersName: '', wardNo: '', farmAnimals: '', farmableLand: '',
+    houseType: 'tin_shed', familyMembers: '', gender: 'male', childrenBoy: '',
+    childrenGirl: '', monthlyIncome: '', phone: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await axiosClient.post('/surveys', form);
+      setSuccess(true);
+      setForm({
+        name: '', fathersName: '', wardNo: '', farmAnimals: '', farmableLand: '',
+        houseType: 'tin_shed', familyMembers: '', gender: 'male', childrenBoy: '',
+        childrenGirl: '', monthlyIncome: '', phone: ''
+      });
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error submitting survey');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="inner-page">
+      <Shell />
+      <div className="page-body fade-up">
+        <h1 style={{ fontSize:'1.35rem', fontWeight:800, color:'var(--grey-900)', marginBottom:12 }}>
+          {t('survey') || 'Socio-Economic Survey'}
+        </h1>
+        
+        <div className="data-card" style={{ padding: 20 }}>
+          {success && (
+            <div className="alert-success" style={{ marginBottom: 20 }}>
+              <CheckCircle size={18} weight="fill" /> {t('success_survey')}
+            </div>
+          )}
+
+          <p style={{ fontSize: '0.85rem', color: 'var(--grey-500)', marginBottom: 20 }}>
+            Please provide accurate information for the society's welfare programs.
+          </p>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="form-group">
+              <label className="field-label-sm">{t('name_label')} *</label>
+              <input className="field-input" value={form.name} onChange={e => set('name', e.target.value)} required />
+            </div>
+
+            <div className="form-group">
+              <label className="field-label-sm">{t('fathers_husband_label')}</label>
+              <input className="field-input" value={form.fathersName} onChange={e => set('fathersName', e.target.value)} />
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+              <div className="form-group">
+                <label className="field-label-sm">{t('ward_label')} *</label>
+                <input className="field-input" value={form.wardNo} onChange={e => set('wardNo', e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label className="field-label-sm">{t('phone_label')} *</label>
+                <input className="field-input" type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} required />
+              </div>
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+              <div className="form-group">
+                <label className="field-label-sm">{t('house_type_label')}</label>
+                <select className="field-input" value={form.houseType} onChange={e => set('houseType', e.target.value)}>
+                  <option value="tin_shed">{t('tin_shed')}</option>
+                  <option value="brick_built">{t('brick_built')}</option>
+                  <option value="mud_house">{t('mud_house')}</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="field-label-sm">{t('gender_label')}</label>
+                <select className="field-input" value={form.gender} onChange={e => set('gender', e.target.value)}>
+                  <option value="male">{t('male')}</option>
+                  <option value="female">{t('female')}</option>
+                  <option value="other">{t('other')}</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+              <div className="form-group">
+                <label className="field-label-sm">{t('family_members_label')}</label>
+                <input className="field-input" type="number" value={form.familyMembers} onChange={e => set('familyMembers', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="field-label-sm">{t('income_label')}</label>
+                <input className="field-input" type="number" value={form.monthlyIncome} onChange={e => set('monthlyIncome', e.target.value)} />
+              </div>
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+              <div className="form-group">
+                <label className="field-label-sm">{t('children_boy_label')}</label>
+                <input className="field-input" type="number" value={form.childrenBoy} onChange={e => set('childrenBoy', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="field-label-sm">{t('children_girl_label')}</label>
+                <input className="field-input" type="number" value={form.childrenGirl} onChange={e => set('childrenGirl', e.target.value)} />
+              </div>
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+              <div className="form-group">
+                <label className="field-label-sm">{t('farm_animals_label')}</label>
+                <input className="field-input" value={form.farmAnimals} onChange={e => set('farmAnimals', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="field-label-sm">{t('farmable_land_label')}</label>
+                <input className="field-input" value={form.farmableLand} onChange={e => set('farmableLand', e.target.value)} />
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary btn-full" style={{ height: 48, marginTop: 10 }} disabled={loading}>
+              {loading ? (
+                <><Spinner size={18} style={{ animation: 'spin 1s linear infinite' }} /> {t('saving')}</>
+              ) : (
+                <><ClipboardText size={18} weight="bold" /> {t('submit_survey')}</>
+              )}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════ */
 const DashboardPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const navigate  = useNavigate();
 
@@ -556,6 +695,15 @@ const DashboardPage = () => {
             <div>
               <p className="quick-card-label">My Records</p>
               <p className="quick-card-sub">View &amp; request corrections</p>
+            </div>
+          </div>
+          <div className="quick-card" onClick={() => navigate('/survey')}>
+            <div className="quick-card-icon" style={{ background:'var(--amber-light)', borderColor:'var(--amber-border)' }}>
+              <ClipboardText size={21} color="var(--amber)" weight="duotone" />
+            </div>
+            <div>
+              <p className="quick-card-label">Survey</p>
+              <p className="quick-card-sub">Submit socio-economic data</p>
             </div>
           </div>
           <div className="quick-card" onClick={() => navigate('/search')}>
@@ -930,6 +1078,7 @@ export default function App() {
         <Route path="/login"    element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/search"   element={<SearchPage />} />
+        <Route path="/survey"   element={<SurveyPage />} />
         <Route path="/profile"  element={<ProfilePage />} />
       </Routes>
     </Router>
