@@ -113,6 +113,11 @@ const HomePage = () => {
   const [q, setQ] = useState({ name: '', fatherName: '', nid: '' });
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    axiosClient.get('/public/settings').then(r => setSettings(r.data)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const hasInput = q.name.trim() || q.fatherName.trim() || q.nid.trim();
@@ -154,10 +159,12 @@ const HomePage = () => {
             <SignIn size={20} />
             {t('sign_in')}
           </Link>
-          <Link to="/apply" className="btn btn-ghost btn-lg" style={{ border: '2px dashed var(--green-border)', color: 'var(--green-text)' }}>
-            <Handshake size={20} />
-            {t('join_us') || 'Join Us'}
-          </Link>
+          {settings?.jobApplicationsEnabled !== false && (
+            <Link to="/apply" className="btn btn-ghost btn-lg" style={{ border: '2px dashed var(--green-border)', color: 'var(--green-text)' }}>
+              <Handshake size={20} />
+              {t('join_us') || 'Join Us'}
+            </Link>
+          )}
         </div>
       </section>
 
@@ -405,7 +412,7 @@ const RegisterPage = () => {
                 <label className="field-label">Phone Number *</label>
                 <div className="input-icon-wrap">
                   <Phone size={16} />
-                  <input type="tel" className="field-input" placeholder="017-XXXXXXXX" value={form.phone} onChange={e => set('phone', e.target.value)} required />
+                  <input type="text" inputMode="tel" className="field-input" placeholder="017-XXXXXXXX" value={form.phone} onChange={e => set('phone', e.target.value)} required />
                 </div>
               </div>
               <div className="field-group">
@@ -1005,10 +1012,10 @@ const ProfilePage = () => {
 /* ═══════════════════════════════════════════
    JOB APPLICATION PAGE (ApplyPage)
 ═══════════════════════════════════════════ */
-const Section = ({ title, icon: Icon, children, step: s, currentStep }) => {
+const Section = React.memo(({ title, icon: Icon, children, step: s, currentStep }) => {
   if (currentStep !== s) return null;
   return (
-    <div className="fade-up">
+    <div className="section-container">
       <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
         <div style={{ padding:10, borderRadius:12, background:'var(--primary)', color:'white' }}>
           <Icon size={24} weight="duotone" />
@@ -1018,7 +1025,7 @@ const Section = ({ title, icon: Icon, children, step: s, currentStep }) => {
       {children}
     </div>
   );
-};
+});
 
 const ApplyPage = () => {
   const { t } = useTranslation();
@@ -1099,8 +1106,8 @@ const ApplyPage = () => {
   return (
     <div style={{ background:'var(--grey-50)', minHeight:'100vh', paddingBottom:60 }}>
       <Navbar />
-      <div className="container" style={{ maxWidth:800, marginTop:40 }}>
-        <form onSubmit={handleSubmit} className="auth-card" style={{ padding:30, width:'100%' }}>
+      <div className="container" style={{ maxWidth:700, marginTop:40 }}>
+        <form onSubmit={handleSubmit} style={{ background:'var(--white)', padding:'40px 30px', margin:'0 auto', borderRadius:'var(--radius-xl)', boxShadow:'var(--shadow-sm)', border:'1px solid var(--border)' }}>
           <div style={{ textAlign:'center', marginBottom:30 }}>
             <h1 style={{ fontSize:'1.8rem', fontWeight:900, marginBottom:8 }}>Job Application Form</h1>
             <p className="text-muted">Apply for a professional role at PBL Sheba Somaj</p>
@@ -1114,17 +1121,17 @@ const ApplyPage = () => {
           {}
           <Section step={1} currentStep={step} title="Applied Position" icon={Briefcase}>
             <div className="form-group">
-              <label className="field-label">Post Applied For (আবেদনকৃত পদ) *</label>
-              <input className="field-input" value={formData.postAppliedFor} onChange={e => set('postAppliedFor', e.target.value)} required placeholder="e.g. Sales Officer" />
+              <label className="field-label" htmlFor="postAppliedFor">Post Applied For (আবেদনকৃত পদ) *</label>
+              <input id="postAppliedFor" className="field-input" value={formData.postAppliedFor} onChange={e => set('postAppliedFor', e.target.value)} required placeholder="e.g. Sales Officer" autoComplete="off" />
             </div>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label">Office Name/Code (অফিস কোড)</label>
-                <input className="field-input" value={formData.officeNameCode} onChange={e => set('officeNameCode', e.target.value)} />
+                <label className="field-label" htmlFor="officeNameCode">Office Name/Code (অফিস কোড)</label>
+                <input id="officeNameCode" className="field-input" value={formData.officeNameCode} onChange={e => set('officeNameCode', e.target.value)} autoComplete="off" />
               </div>
               <div className="form-group">
-                <label className="field-label">Role Category *</label>
-                <select className="field-input" value={formData.roleCode} onChange={e => set('roleCode', e.target.value)}>
+                <label className="field-label" htmlFor="roleCode">Role Category *</label>
+                <select id="roleCode" className="field-input" value={formData.roleCode} onChange={e => set('roleCode', e.target.value)}>
                   {['SO', 'ASM', 'RSM', 'DSM', 'NSM', 'D.CMO'].map(v => <option key={v} value={v}>{v}</option>)}
                 </select>
               </div>
@@ -1135,22 +1142,22 @@ const ApplyPage = () => {
           <Section step={2} currentStep={step} title="Personal Information" icon={UserSquare}>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label">Name (Bengali/বাংলা) *</label>
-                <input className="field-input" value={formData.nameBn} onChange={e => set('nameBn', e.target.value)} required />
+                <label className="field-label" htmlFor="nameBn">Name (Bengali/বাংলা) *</label>
+                <input id="nameBn" className="field-input" value={formData.nameBn} onChange={e => set('nameBn', e.target.value)} required autoComplete="off" />
               </div>
               <div className="form-group">
-                <label className="field-label">Name (English) *</label>
-                <input className="field-input" value={formData.nameEn} onChange={e => set('nameEn', e.target.value)} required />
+                <label className="field-label" htmlFor="nameEn">Name (English) *</label>
+                <input id="nameEn" className="field-input" value={formData.nameEn} onChange={e => set('nameEn', e.target.value)} required autoComplete="off" />
               </div>
             </div>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label">Father's Name (পিতার নাম) *</label>
-                <input className="field-input" value={formData.fatherName} onChange={e => set('fatherName', e.target.value)} required />
+                <label className="field-label" htmlFor="fatherName">Father's Name (পিতার নাম) *</label>
+                <input id="fatherName" className="field-input" value={formData.fatherName} onChange={e => set('fatherName', e.target.value)} required autoComplete="off" />
               </div>
               <div className="form-group">
-                <label className="field-label">Mother's Name (মাতার নাম) *</label>
-                <input className="field-input" value={formData.motherName} onChange={e => set('motherName', e.target.value)} required />
+                <label className="field-label" htmlFor="motherName">Mother's Name (মাতার নাম) *</label>
+                <input id="motherName" className="field-input" value={formData.motherName} onChange={e => set('motherName', e.target.value)} required autoComplete="off" />
               </div>
             </div>
             <div className="form-group">
@@ -1163,16 +1170,16 @@ const ApplyPage = () => {
             </div>
             <div className="input-row input-row-3">
               <div className="form-group">
-                <label className="field-label">DOB *</label>
-                <input className="field-input" type="date" value={formData.dob} onChange={e => set('dob', e.target.value)} required />
+                <label className="field-label" htmlFor="dob">DOB *</label>
+                <input id="dob" className="field-input" type="date" value={formData.dob} onChange={e => set('dob', e.target.value)} required />
               </div>
               <div className="form-group">
-                <label className="field-label">Age</label>
-                <input className="field-input" type="number" value={formData.age} onChange={e => set('age', e.target.value)} />
+                <label className="field-label" htmlFor="age">Age</label>
+                <input id="age" className="field-input" type="number" inputMode="numeric" value={formData.age} onChange={e => set('age', e.target.value)} />
               </div>
               <div className="form-group">
-                <label className="field-label">NID *</label>
-                <input className="field-input" value={formData.nid} onChange={e => set('nid', e.target.value)} required />
+                <label className="field-label" htmlFor="nid">NID *</label>
+                <input id="nid" className="field-input" value={formData.nid} onChange={e => set('nid', e.target.value)} required autoComplete="off" />
               </div>
             </div>
           </Section>
@@ -1181,12 +1188,12 @@ const ApplyPage = () => {
           <Section step={3} currentStep={step} title="Contact & Financial" icon={Phone}>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label">Mobile Number *</label>
-                <input className="field-input" type="tel" value={formData.mobile} onChange={e => set('mobile', e.target.value)} required />
+                <label className="field-label" htmlFor="mobile">Mobile Number *</label>
+                <input id="mobile" className="field-input" type="text" inputMode="tel" value={formData.mobile} onChange={e => set('mobile', e.target.value)} required autoComplete="off" />
               </div>
               <div className="form-group">
-                <label className="field-label">Email Address</label>
-                <input className="field-input" type="email" value={formData.email} onChange={e => set('email', e.target.value)} />
+                <label className="field-label" htmlFor="email">Email Address</label>
+                <input id="email" className="field-input" type="email" value={formData.email} onChange={e => set('email', e.target.value)} autoComplete="off" />
               </div>
             </div>
             <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>Bank Account (if any)</p>

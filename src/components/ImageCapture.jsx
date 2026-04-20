@@ -114,28 +114,36 @@ const ImageCapture = ({ onImageChange, currentImage }) => {
           margin: 10px 0;
         }
         .capture-options {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 24px;
+          padding: 20px 0;
+          height: 100%;
+          min-height: 180px;
         }
         .capture-option-btn {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          padding: 24px;
+          gap: 12px;
+          padding: 0;
+          width: 130px;
+          height: 130px;
           border: 2px dashed var(--border);
-          border-radius: var(--radius-lg);
+          border-radius: var(--radius-2xl);
           cursor: pointer;
-          color: var(--text-muted);
-          transition: all 0.2s;
-          background: var(--neutral-50);
+          color: var(--grey-500);
+          background: var(--grey-50);
+          transition: all 0.2s ease;
         }
         .capture-option-btn:hover {
           border-color: var(--primary);
           color: var(--primary);
           background: var(--primary-light);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 16px rgba(22, 163, 74, 0.12);
         }
         .image-preview-container {
           position: relative;
