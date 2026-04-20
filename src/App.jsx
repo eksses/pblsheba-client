@@ -5,7 +5,7 @@ import {
   UserSquare, ShieldCheck, Handshake, IdentificationCard, SignOut,
   CheckCircle, House, PencilSimple, Warning, Spinner, User,
   SunHorizon, Sun, Moon, ArrowRight, CheckFat, SealCheck, DownloadSimple,
-  ClipboardText
+  ClipboardText, Briefcase
 } from '@phosphor-icons/react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -161,6 +161,10 @@ const HomePage = () => {
           <Link to="/login" className="btn btn-outline btn-lg">
             <SignIn size={20} />
             {t('sign_in')}
+          </Link>
+          <Link to="/apply" className="btn btn-ghost btn-lg" style={{ border: '2px dashed var(--green-border)', color: 'var(--green-text)' }}>
+            <Handshake size={20} />
+            {t('join_us') || 'Join Us'}
           </Link>
         </div>
       </section>
@@ -1019,6 +1023,320 @@ const ProfilePage = () => {
 };
 
 /* ═══════════════════════════════════════════
+   JOB APPLICATION PAGE (ApplyPage)
+═══════════════════════════════════════════ */
+const ApplyPage = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState(null);
+  const [formData, setFormData] = useState({
+    postAppliedFor: '', officeNameCode: '', roleCode: 'SO',
+    nameBn: '', nameEn: '', fatherName: '', motherName: '',
+    presentAddress: '', permanentAddress: '', dob: '', age: '', religion: '', 
+    nid: '', nationality: 'Bangladeshi', profession: '', maritalStatus: '', spouseName: '',
+    mobile: '', email: '', bankName: '', branch: '', routingNo: '',
+    mobileBankingType: 'bKash', mobileBankingNumber: '',
+    nomineeName: '', nomineeAddress: '', nomineeRelationship: '', nomineeMobile: '',
+    education: [
+      { examName: 'SSC/Equiv', subject: '', result: '', passingYear: '', board: '' },
+      { examName: 'HSC/Equiv', subject: '', result: '', passingYear: '', board: '' },
+      { examName: 'Bachelor', subject: '', result: '', passingYear: '', board: '' },
+      { examName: 'Master\'s', subject: '', result: '', passingYear: '', board: '' }
+    ],
+    photo: null,
+    signature: null
+  });
+
+  useEffect(() => {
+    axiosClient.get('/public/settings').then(r => {
+      setSettings(r.data);
+      if (r.data && r.data.jobApplicationsEnabled === false) {
+        alert('Job applications are currently closed.');
+        navigate('/');
+      }
+    }).catch(() => {});
+  }, []);
+
+  const set = (f, v) => setFormData(prev => ({ ...prev, [f]: v }));
+  const setEdu = (i, f, v) => {
+    const next = [...formData.education];
+    next[i][f] = v;
+    set('education', next);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.photo || !formData.signature) {
+      alert('Photo and Signature are required!');
+      return;
+    }
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (key === 'education') {
+          fd.append(key, JSON.stringify(formData[key]));
+        } else if (key === 'photo' || key === 'signature') {
+          if (formData[key]) fd.append(key, formData[key]);
+        } else {
+          fd.append(key, formData[key]);
+        }
+      });
+
+      await axiosClient.post('/public/career/apply', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert('Application submitted successfully!');
+      navigate('/');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to submit application');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const Section = ({ title, icon: Icon, children, step: s }) => {
+    if (step !== s) return null;
+    return (
+      <div className="fade-up">
+        <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
+          <div style={{ padding:10, borderRadius:12, background:'var(--primary)', color:'white' }}>
+            <Icon size={24} weight="duotone" />
+          </div>
+          <h2 style={{ fontSize:'1.4rem', fontWeight:800 }}>{title}</h2>
+        </div>
+        {children}
+      </div>
+    );
+  };
+
+  if (!settings) return <div className="loading-screen"><Spinner size={40} /></div>;
+
+  return (
+    <div style={{ background:'var(--grey-50)', minHeight:'100vh', paddingBottom:60 }}>
+      <Navbar />
+      <div className="container" style={{ maxWidth:800, marginTop:40 }}>
+        <form onSubmit={handleSubmit} className="auth-card" style={{ padding:30, width:'100%' }}>
+          <div style={{ textAlign:'center', marginBottom:30 }}>
+            <h1 style={{ fontSize:'1.8rem', fontWeight:900, marginBottom:8 }}>Job Application Form</h1>
+            <p className="text-muted">Apply for a professional role at PBL Sheba Somaj</p>
+            <div className="step-indicator" style={{ display:'flex', gap:6, justifyContent:'center', marginTop:20 }}>
+              {[1,2,3,4,5].map(i => (
+                <div key={i} style={{ height:6, width: step === i ? 40 : 20, borderRadius:3, background: step >= i ? 'var(--primary)' : 'var(--border)', transition:'0.3s' }} />
+              ))}
+            </div>
+          </div>
+
+          {/* STEP 1: JOB DETAILS */}
+          <Section step={1} title="Applied Position" icon={Briefcase}>
+            <div className="form-group">
+              <label className="field-label">Post Applied For (আবেদনকৃত পদ) *</label>
+              <input className="field-input" value={formData.postAppliedFor} onChange={e => set('postAppliedFor', e.target.value)} required placeholder="e.g. Sales Officer" />
+            </div>
+            <div className="input-row input-row-2">
+              <div className="form-group">
+                <label className="field-label">Office Name/Code (অফিস কোড)</label>
+                <input className="field-input" value={formData.officeNameCode} onChange={e => set('officeNameCode', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Role Category *</label>
+                <select className="field-input" value={formData.roleCode} onChange={e => set('roleCode', e.target.value)}>
+                  {['SO', 'ASM', 'RSM', 'DSM', 'NSM', 'D.CMO'].map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </div>
+            </div>
+          </Section>
+
+          {/* STEP 2: PERSONAL INFO */}
+          <Section step={2} title="Personal Information" icon={UserSquare}>
+            <div className="input-row input-row-2">
+              <div className="form-group">
+                <label className="field-label">Name (Bengali/বাংলা) *</label>
+                <input className="field-input" value={formData.nameBn} onChange={e => set('nameBn', e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Name (English) *</label>
+                <input className="field-input" value={formData.nameEn} onChange={e => set('nameEn', e.target.value)} required />
+              </div>
+            </div>
+            <div className="input-row input-row-2">
+              <div className="form-group">
+                <label className="field-label">Father's Name (পিতার নাম) *</label>
+                <input className="field-input" value={formData.fatherName} onChange={e => set('fatherName', e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Mother's Name (মাতার নাম) *</label>
+                <input className="field-input" value={formData.motherName} onChange={e => set('motherName', e.target.value)} required />
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="field-label">Present Address (বর্তমান ঠিকানা) *</label>
+              <textarea className="field-input" value={formData.presentAddress} onChange={e => set('presentAddress', e.target.value)} required rows={2} />
+            </div>
+            <div className="form-group">
+              <label className="field-label">Permanent Address (স্থায়ী ঠিকানা) *</label>
+              <textarea className="field-input" value={formData.permanentAddress} onChange={e => set('permanentAddress', e.target.value)} required rows={2} />
+            </div>
+            <div className="input-row input-row-3">
+              <div className="form-group">
+                <label className="field-label">DOB *</label>
+                <input className="field-input" type="date" value={formData.dob} onChange={e => set('dob', e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Age</label>
+                <input className="field-input" type="number" value={formData.age} onChange={e => set('age', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="field-label">NID *</label>
+                <input className="field-input" value={formData.nid} onChange={e => set('nid', e.target.value)} required />
+              </div>
+            </div>
+          </Section>
+
+          {/* STEP 3: FINANCIAL & CONTACT */}
+          <Section step={3} title="Contact & Financial" icon={Phone}>
+            <div className="input-row input-row-2">
+              <div className="form-group">
+                <label className="field-label">Mobile Number *</label>
+                <input className="field-input" type="tel" value={formData.mobile} onChange={e => set('mobile', e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Email Address</label>
+                <input className="field-input" type="email" value={formData.email} onChange={e => set('email', e.target.value)} />
+              </div>
+            </div>
+            <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>Bank Account (if any)</p>
+            <div className="input-row input-row-3">
+              <div className="form-group">
+                <label className="field-label">Bank Name</label>
+                <input className="field-input" value={formData.bankName} onChange={e => set('bankName', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Branch</label>
+                <input className="field-input" value={formData.branch} onChange={e => set('branch', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Routing No</label>
+                <input className="field-input" value={formData.routingNo} onChange={e => set('routingNo', e.target.value)} />
+              </div>
+            </div>
+            <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>Mobile Banking</p>
+            <div className="input-row input-row-2">
+              <div className="form-group">
+                <label className="field-label">Banking Type</label>
+                <select className="field-input" value={formData.mobileBankingType} onChange={e => set('mobileBankingType', e.target.value)}>
+                  <option value="bKash">bKash</option>
+                  <option value="Nagad">Nagad</option>
+                  <option value="Rocket">Rocket</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="field-label">Account Number</label>
+                <input className="field-input" value={formData.mobileBankingNumber} onChange={e => set('mobileBankingNumber', e.target.value)} />
+              </div>
+            </div>
+          </Section>
+
+          {/* STEP 4: EDUCATION & NOMINEE */}
+          <Section step={4} title="Qualification & Nominee" icon={IdentificationCard}>
+            <p style={{ fontWeight:700, marginBottom:10 }}>Educational Qualifications</p>
+            <div className="education-table-wrapper" style={{ overflowX:'auto', marginBottom:20 }}>
+              <table style={{ width:'100%', minWidth:500, borderCollapse:'collapse' }}>
+                <thead>
+                  <tr style={{ background:'var(--grey-100)', textAlign:'left' }}>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>Exam</th>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>Group/Subject</th>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>GPA/Result</th>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>Year</th>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>Board</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formData.education.map((edu, i) => (
+                    <tr key={i}>
+                      <td style={{ padding:0, border:'1px solid var(--border)' }}><input disabled value={edu.examName} className="field-input" style={{ border:'none', background:'var(--grey-50)', fontSize:12 }} /></td>
+                      <td style={{ padding:0, border:'1px solid var(--border)' }}><input value={edu.subject} onChange={e => setEdu(i, 'subject', e.target.value)} className="field-input" style={{ border:'none', fontSize:12 }} /></td>
+                      <td style={{ padding:0, border:'1px solid var(--border)' }}><input value={edu.result} onChange={e => setEdu(i, 'result', e.target.value)} className="field-input" style={{ border:'none', fontSize:12 }} /></td>
+                      <td style={{ padding:0, border:'1px solid var(--border)' }}><input value={edu.passingYear} onChange={e => setEdu(i, 'passingYear', e.target.value)} className="field-input" style={{ border:'none', fontSize:12 }} /></td>
+                      <td style={{ padding:0, border:'1px solid var(--border)' }}><input value={edu.board} onChange={e => setEdu(i, 'board', e.target.value)} className="field-input" style={{ border:'none', fontSize:12 }} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>Nominee Information</p>
+            <div className="input-row input-row-2">
+              <div className="form-group">
+                <label className="field-label">Nominee Name *</label>
+                <input className="field-input" value={formData.nomineeName} onChange={e => set('nomineeName', e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Relationship *</label>
+                <input className="field-input" value={formData.nomineeRelationship} onChange={e => set('nomineeRelationship', e.target.value)} required />
+              </div>
+            </div>
+            <div className="input-row input-row-2">
+              <div className="form-group">
+                <label className="field-label">Nominee Mobile</label>
+                <input className="field-input" value={formData.nomineeMobile} onChange={e => set('nomineeMobile', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Nominee Address</label>
+                <input className="field-input" value={formData.nomineeAddress} onChange={e => set('nomineeAddress', e.target.value)} />
+              </div>
+            </div>
+          </Section>
+
+          {/* STEP 5: ATTACHMENTS */}
+          <Section step={5} title="Attachments & Declaration" icon={PencilSimple}>
+            <div className="m-grid m-grid-2">
+              <div className="form-group">
+                <label className="field-label">Passport Photo *</label>
+                <ImageCapture onImageChange={f => set('photo', f)} currentImage={null} />
+              </div>
+              <div className="form-group">
+                <label className="field-label">Signature *</label>
+                <ImageCapture onImageChange={f => set('signature', f)} currentImage={null} />
+                <p style={{ fontSize:'0.7rem', color:'var(--text-muted)', marginTop:4 }}>Upload or take photo of your handwritten signature.</p>
+              </div>
+            </div>
+            <div style={{ marginTop:24, padding:16, background:'var(--primary-light)', borderRadius:12, border:'1px solid var(--primary-border)' }}>
+              <label style={{ display:'flex', gap:12, cursor:'pointer' }}>
+                <input type="checkbox" required style={{ width:20, height:20, accentColor:'var(--primary)' }} />
+                <span style={{ fontSize:'0.85rem', lineHeight:1.4 }}>
+                  I hereby declare that all the information provided above is true and accurate to the best of my knowledge. I understand that any false statement will disqualify my application.
+                </span>
+              </label>
+            </div>
+          </Section>
+
+          <div style={{ display:'flex', gap:10, marginTop:30 }}>
+            {step > 1 && (
+              <button type="button" className="btn btn-outline" style={{ flex:1 }} onClick={() => setStep(step - 1)}>
+                <CaretLeft size={18} /> Back
+              </button>
+            )}
+            {step < 5 ? (
+              <button type="button" className="btn btn-primary" style={{ flex:2, height:48 }} onClick={() => setStep(step + 1)}>
+                Next <ArrowRight size={18} />
+              </button>
+            ) : (
+              <button type="submit" className="btn btn-primary" style={{ flex:2, height:48 }} disabled={loading}>
+                {loading ? <Spinner size={20} style={{animation:'spin 1s linear infinite'}} /> : <SealCheck size={20} weight="fill" />}
+                Submit Application
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
    FORCE PASSWORD RESET
 ═══════════════════════════════════════════ */
 const ForcePasswordReset = () => {
@@ -1078,6 +1396,7 @@ export default function App() {
         <Route path="/"         element={isAuthenticated ? <DashboardPage /> : <HomePage />} />
         <Route path="/login"    element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/apply"    element={<ApplyPage />} />
         <Route path="/search"   element={<SearchPage />} />
         <Route path="/survey"   element={<SurveyPage />} />
         <Route path="/profile"  element={<ProfilePage />} />
