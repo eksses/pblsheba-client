@@ -1,8 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+@import url('https:
 
-/* ═══════════════════════════════════════════
-   DESIGN TOKENS
-═══════════════════════════════════════════ */
+
 :root {
   --green:        #16a34a;
   --green-dark:   #15803d;
@@ -44,9 +42,7 @@
   --font-bn: 'Hind Siliguri', sans-serif;
 }
 
-/* ═══════════════════════════════════════════
-   RESET & BASE
-═══════════════════════════════════════════ */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -64,9 +60,7 @@ a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; }
 input, textarea, select { font-family: inherit; }
 
-/* ═══════════════════════════════════════════
-   NAVBAR
-═══════════════════════════════════════════ */
+
 .navbar {
   position: sticky; top: 0; z-index: 100;
   background: var(--white);
@@ -110,9 +104,7 @@ input, textarea, select { font-family: inherit; }
 }
 .lang-btn.active { background: var(--white); color: var(--green); box-shadow: var(--shadow-xs); }
 
-/* ═══════════════════════════════════════════
-   LANDING HERO — accent gradient background
-═══════════════════════════════════════════ */
+
 .hero {
   background: linear-gradient(160deg, var(--green-light) 0%, var(--white) 55%);
   padding: 72px 20px 64px;
@@ -121,7 +113,7 @@ input, textarea, select { font-family: inherit; }
   position: relative;
   overflow: hidden;
 }
-/* Decorative accent blob */
+
 .hero::before {
   content: '';
   position: absolute;
@@ -165,9 +157,7 @@ input, textarea, select { font-family: inherit; }
 }
 .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
-/* ═══════════════════════════════════════════
-   TRUST STRIP — green accent background
-═══════════════════════════════════════════ */
+
 .trust-strip {
   background: var(--green-mid);
   border-bottom: 1px solid var(--green-border);
@@ -179,9 +169,7 @@ input, textarea, select { font-family: inherit; }
   font-size: 0.82rem; font-weight: 700; color: var(--green-text);
 }
 
-/* ═══════════════════════════════════════════
-   PUBLIC SEARCH SECTION
-═══════════════════════════════════════════ */
+
 .public-search-section {
   padding: 48px 20px;
   max-width: 640px; margin: 0 auto;
@@ -256,7 +244,7 @@ input, textarea, select { font-family: inherit; }
 }
 .field-textarea::placeholder { color: var(--grey-300); }
 
-/* ─── Result cards ─── */
+
 .result-item {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 14px; border-radius: var(--radius-md);
@@ -278,7 +266,7 @@ input, textarea, select { font-family: inherit; }
 .result-name { font-weight: 700; font-size: 0.95rem; color: var(--grey-900); margin-bottom: 2px; }
 .result-sub  { font-size: 0.8rem; color: var(--grey-400); }
 
-/* ─── Badges ─── */
+
 .badge {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 3px 9px; border-radius: 99px;
@@ -290,15 +278,13 @@ input, textarea, select { font-family: inherit; }
 .badge-amber  { background: var(--amber-light); color: var(--amber); border-color: #fde68a; }
 .badge-red    { background: var(--red-light); color: var(--red); border-color: #fecaca; }
 
-/* ─── Empty / shimmer ─── */
+
 .empty-hint { text-align: center; padding: 32px 16px; color: var(--grey-300); }
 .empty-hint p { font-size: 0.875rem; margin-top: 6px; }
 .shimmer { background: linear-gradient(90deg, var(--grey-100) 25%, var(--grey-200) 50%, var(--grey-100) 75%); background-size: 200% 100%; animation: shimmer 1.3s ease infinite; border-radius: var(--radius-md); }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-/* ═══════════════════════════════════════════
-   FEATURE SECTION — accent colored cards
-═══════════════════════════════════════════ */
+
 .features {
   background: var(--white);
   border-top: 1px solid var(--grey-200);
@@ -331,9 +317,7 @@ input, textarea, select { font-family: inherit; }
 .feature-title { font-size: 0.95rem; font-weight: 800; color: var(--grey-900); margin-bottom: 6px; }
 .feature-desc  { font-size: 0.83rem; color: var(--grey-500); line-height: 1.6; }
 
-/* ═══════════════════════════════════════════
-   BUTTONS
-═══════════════════════════════════════════ */
+
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   height: 44px; padding: 0 20px; border-radius: var(--radius-md);
@@ -354,9 +338,7 @@ input, textarea, select { font-family: inherit; }
 .btn-danger { background: var(--red-light); color: var(--red); border: 1.5px solid #fecaca; }
 .btn-danger:hover { background: #fee2e2; }
 
-/* ═══════════════════════════════════════════
-   INNER PAGE SHELL
-═══════════════════════════════════════════ */
+
 .inner-page { min-height: 100vh; background: var(--grey-50); display: flex; flex-direction: column; }
 
 .inner-topbar {
@@ -397,9 +379,7 @@ input, textarea, select { font-family: inherit; }
 }
 @media (min-width: 768px) { .page-body { padding: 40px 24px 60px; } }
 
-/* ═══════════════════════════════════════════
-   PROFILE HERO CARD — accent header strip
-═══════════════════════════════════════════ */
+
 .profile-hero-card {
   background: var(--white);
   border: 1.5px solid var(--green-border);
@@ -435,9 +415,7 @@ input, textarea, select { font-family: inherit; }
 .profile-greeting { font-size: 0.75rem; color: var(--grey-400); font-weight: 600; margin-bottom: 3px; display: flex; align-items: center; gap: 5px; }
 .profile-name { font-size: 1.2rem; font-weight: 800; color: var(--grey-900); margin-bottom: 8px; letter-spacing: -0.02em; }
 
-/* ═══════════════════════════════════════════
-   DATA CARD  
-═══════════════════════════════════════════ */
+
 .data-card {
   background: var(--white);
   border: 1.5px solid var(--grey-200);
@@ -467,9 +445,7 @@ input, textarea, select { font-family: inherit; }
 .data-value { font-size: 0.9rem; font-weight: 700; color: var(--grey-900); text-align: right; word-break: break-all; }
 .data-value.mono { font-family: 'Courier New', monospace; font-size: 0.82rem; letter-spacing: 0.04em; background: var(--grey-100); padding: 2px 7px; border-radius: 5px; }
 
-/* ═══════════════════════════════════════════
-   ACTION CARD
-═══════════════════════════════════════════ */
+
 .action-card {
   background: var(--white);
   border: 1.5px solid var(--grey-200);
@@ -485,9 +461,7 @@ input, textarea, select { font-family: inherit; }
 }
 .action-card-desc  { font-size: 0.83rem; color: var(--grey-400); margin-bottom: 16px; line-height: 1.55; }
 
-/* ═══════════════════════════════════════════
-   QUICK ACTION GRID — accent icon backgrounds
-═══════════════════════════════════════════ */
+
 .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
 .quick-card {
   background: var(--white); border: 1.5px solid var(--grey-200);
@@ -513,9 +487,7 @@ input, textarea, select { font-family: inherit; }
 .quick-card-label { font-size: 0.9rem; font-weight: 800; color: var(--grey-900); }
 .quick-card-sub   { font-size: 0.75rem; color: var(--grey-400); line-height: 1.4; margin-top: -4px; }
 
-/* ═══════════════════════════════════════════
-   STAT PILLS — green accent on first
-═══════════════════════════════════════════ */
+
 .stat-row { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
 .stat-row::-webkit-scrollbar { display: none; }
 .stat-pill {
@@ -531,9 +503,7 @@ input, textarea, select { font-family: inherit; }
 .stat-value { font-size: 0.88rem; font-weight: 800; color: var(--grey-900); }
 .stat-pill.accent .stat-value { color: var(--green-text); }
 
-/* ═══════════════════════════════════════════
-   SECTION LABEL
-═══════════════════════════════════════════ */
+
 .section-eyebrow-sm {
   font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--green);
@@ -545,9 +515,7 @@ input, textarea, select { font-family: inherit; }
   background: var(--green); border-radius: 2px;
 }
 
-/* ═══════════════════════════════════════════
-   AUTH PAGES
-═══════════════════════════════════════════ */
+
 .auth-page { min-height: 100vh; background: var(--grey-50); display: flex; flex-direction: column; }
 .auth-topbar { padding: 16px 20px; display: flex; align-items: center; gap: 8px; }
 .auth-back {
@@ -602,9 +570,7 @@ input, textarea, select { font-family: inherit; }
   display: flex; align-items: center; gap: 8px;
 }
 
-/* ═══════════════════════════════════════════
-   STEPPER
-═══════════════════════════════════════════ */
+
 .step-bar { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
 .step-dot {
   width: 28px; height: 28px; border-radius: 50%;
@@ -617,7 +583,7 @@ input, textarea, select { font-family: inherit; }
 .step-line { flex: 1; height: 2px; background: var(--grey-200); margin: 0 4px; }
 .step-line.done { background: var(--green); }
 
-/* Payment method cards */
+
 .pm-card {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;
   padding: 14px 10px; border-radius: var(--radius-md);
@@ -637,9 +603,7 @@ input, textarea, select { font-family: inherit; }
 .payment-info-row { font-size: 0.84rem; color: var(--grey-700); margin-bottom: 4px; }
 .payment-info-row strong { color: var(--grey-900); }
 
-/* ═══════════════════════════════════════════
-   FIXED ACTIONS / MOBILE CTA
-═══════════════════════════════════════════ */
+
 .fixed-actions {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
   background: rgba(255,255,255,0.95);
@@ -650,15 +614,13 @@ input, textarea, select { font-family: inherit; }
 }
 @media (min-width: 768px) { .fixed-actions { position: static; background: none; border: none; padding: 24px 0 0; backdrop-filter: none; } }
 
-/* ═══════════════════════════════════════════
-   ANIMATIONS
-═══════════════════════════════════════════ */
+
 .fade-up { animation: fadeUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* ─── Desktop nav helpers ─── */
+
 .desktop-only-flex { display: none !important; }
 @media (min-width: 768px) { .desktop-only-flex { display: flex !important; } }
 
@@ -668,9 +630,7 @@ input, textarea, select { font-family: inherit; }
 .form-spacer { height: 90px; display: block; }
 @media (min-width: 768px) { .form-spacer { display: none; } }
 
-/* ═══════════════════════════════════════════
-   ID CARD EXPORT
-═══════════════════════════════════════════ */
+
 .id-card-export {
   width: 400px;
   height: auto;

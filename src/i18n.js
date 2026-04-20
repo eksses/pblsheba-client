@@ -48,7 +48,7 @@ const resources = {
       "identity_records": "Identity Records",
       "loading_payment": "Loading payment options…",
 
-      // Branding & Landing
+      
       "brand_name": "PBL Sheba",
       "verify_public_records": "Verify Public Records",
       "empowering_community": "Empowering Our Community",
@@ -59,7 +59,7 @@ const resources = {
       "receive_aid": "3. Receive Aid",
       "receive_aid_desc": "Gain access to crucial organizational support resources effortlessly.",
 
-      // UI / State
+      
       "view_profile_btn": "View My Profile",
       "interrogating_db": "Interrogating Database...",
       "verified_status": "Verified",
@@ -69,14 +69,14 @@ const resources = {
       "edit_request_success": "Edit request submitted to Admin.",
       "registration_success": "Registration successful! Waiting for approval.",
 
-      // Security
+      
       "network_security_lock": "Network Security Lock",
       "security_action_required": "Action Required",
       "security_change_pass_desc": "Your account requires a secure password change before the first login.",
       "new_secure_pass_label": "New Secure Password",
       "lock_save_pass_btn": "Lock & Save Password",
 
-      // Survey
+      
       "survey": "Survey",
       "name_label": "Full Name",
       "fathers_husband_label": "Father's / Husband's Name",
@@ -149,7 +149,7 @@ const resources = {
       "loading_payment": "পেমেন্ট অপশন লোড হচ্ছে…",
       "edit_requests": "সংশোধন অনুরোধ",
 
-      // Branding & Landing
+      
       "brand_name": "পিবিএল সেবা",
       "verify_public_records": "পাবলিক রেকর্ড যাচাই করুন",
       "empowering_community": "আমাদের কমিউনিটিকে শক্তিশালী করছি",
@@ -160,7 +160,7 @@ const resources = {
       "receive_aid": "৩. সহায়তা গ্রহণ করুন",
       "receive_aid_desc": "অনায়াসে সাংগঠনিক সহায়তা সংস্থানগুলোতে প্রবেশাধিকার পান।",
 
-      // UI / State
+      
       "view_profile_btn": "আমার প্রোফাইল দেখুন",
       "interrogating_db": "ডেটাবেস চেক করা হচ্ছে...",
       "verified_status": "যাচাইকৃত",
@@ -170,14 +170,14 @@ const resources = {
       "edit_request_success": "সংশোধন অনুরোধ অ্যাডমিনের কাছে জমা দেওয়া হয়েছে।",
       "registration_success": "নিবন্ধন সফল হয়েছে! অনুমোদনের জন্য অপেক্ষা করুন।",
 
-      // Security
+      
       "network_security_lock": "নেটওয়ার্ক নিরাপত্তা লক",
       "security_action_required": "পদক্ষেপ প্রয়োজন",
       "security_change_pass_desc": "প্রথম লগইনের আগে আপনার অ্যাকাউন্টের পাসওয়ার্ড পরিবর্তন করা প্রয়োজন।",
       "new_secure_pass_label": "নতুন নিরাপদ পাসওয়ার্ড",
       "lock_save_pass_btn": "লক এবং পাসওয়ার্ড সংরক্ষণ করুন",
 
-      // Survey
+      
       "survey": "জরিপ",
       "name_label": "পুরো নাম",
       "fathers_husband_label": "পিতা / স্বামীর নাম",

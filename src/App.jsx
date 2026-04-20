@@ -15,9 +15,7 @@ import { useAuthStore } from './store/useAuthStore';
 import ImageCapture from './components/ImageCapture';
 import './i18n';
 
-/* ─────────────────────────────────────────
-   HELPERS
-───────────────────────────────────────── */
+
 const StatusBadge = ({ status }) => {
   const map = { approved: 'badge-green', pending: 'badge-amber', rejected: 'badge-red' };
   return <span className={`badge ${map[status] || 'badge-amber'}`}>{status || 'pending'}</span>;
@@ -40,9 +38,7 @@ const LangToggle = () => {
   );
 };
 
-/* ─────────────────────────────────────────
-   NAVBAR  (public landing only)
-───────────────────────────────────────── */
+
 const Navbar = () => {
   const { isAuthenticated } = useAuthStore();
   return (
@@ -66,9 +62,7 @@ const Navbar = () => {
   );
 };
 
-/* ─────────────────────────────────────────
-   INNER SHELL  (post-login)
-───────────────────────────────────────── */
+
 const Shell = () => {
   const { logout } = useAuthStore();
   const { i18n } = useTranslation();
@@ -79,7 +73,7 @@ const Shell = () => {
 
   return (
     <>
-      {/* Top bar */}
+      {}
       <div className="inner-topbar">
         <div className="inner-topbar-brand" style={{ display:'flex', alignItems:'center', gap:8 }}>
           <img src="/logo.png" alt="Logo" style={{ width:28, height:28, borderRadius:6 }} />
@@ -100,7 +94,7 @@ const Shell = () => {
         </div>
       </div>
 
-      {/* Bottom tab bar */}
+      {}
       <nav className="bottom-nav">
         {[['/','Home', House], ['/search','Search', MagnifyingGlass], ['/survey','Survey', ClipboardText], ['/profile','Profile', User]].map(([path, label, Icon]) => (
           <button key={path} onClick={() => navigate(path)} className={`bottom-nav-item${at(path) ? ' active' : ''}`}>
@@ -113,9 +107,7 @@ const Shell = () => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   LANDING PAGE
-═══════════════════════════════════════════ */
+
 const HomePage = () => {
   const { t } = useTranslation();
   const [q, setQ] = useState({ name: '', fatherName: '', nid: '' });
@@ -141,7 +133,7 @@ const HomePage = () => {
     <div style={{ background:'var(--grey-50)', minHeight:'100vh' }}>
       <Navbar />
 
-      {/* ── HERO ── */}
+      {}
       <section className="hero fade-up">
         <div className="hero-badge">
           <SealCheck size={13} weight="fill" />
@@ -169,14 +161,14 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ── TRUST STRIP ── */}
+      {}
       <div className="trust-strip">
         <div className="trust-item"><CheckFat size={15} weight="fill" /> Verified member records</div>
         <div className="trust-item"><ShieldCheck size={15} weight="fill" /> Secure &amp; private data</div>
         <div className="trust-item"><Handshake size={15} weight="fill" /> Community welfare</div>
       </div>
 
-      {/* ── PUBLIC SEARCH ── */}
+      {}
       <div className="public-search-section">
         <p className="section-eyebrow">Public Verification</p>
         <h2 className="section-title">{t('verify_public_records') || 'Verify a Member'}</h2>
@@ -207,7 +199,7 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Results */}
+        {}
         {loading && [1,2].map(i => <div key={i} className="shimmer" style={{ height:66, marginBottom:8, opacity: 1 - i*0.3 }} />)}
         {!loading && results && results.length > 0 && (
           <div>
@@ -243,7 +235,7 @@ const HomePage = () => {
         )}
       </div>
 
-      {/* ── FEATURES ── */}
+      {}
       <section className="features">
         <div style={{ textAlign:'center', maxWidth:500, margin:'0 auto 32px' }}>
           <p className="section-eyebrow" style={{ justifyContent:'center' }}>Why PBL Sheba</p>
@@ -270,9 +262,7 @@ const HomePage = () => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   LOGIN
-═══════════════════════════════════════════ */
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const { t }    = useTranslation();
@@ -346,9 +336,7 @@ const LoginPage = () => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   REGISTER
-═══════════════════════════════════════════ */
+
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -457,7 +445,7 @@ const RegisterPage = () => {
                       <div key={pm.name} className={`pm-card ${form.paymentMethod===pm.name?'selected':''}`}
                         onClick={() => set('paymentMethod', pm.name)}
                         style={{ borderColor: form.paymentMethod===pm.name ? pm.themeColor||'var(--green)' : undefined }}>
-                        <img src={pm.logoUrl||'https://via.placeholder.com/80x32?text=Pay'} alt={pm.name} />
+                        <img src={pm.logoUrl || 'https://via.placeholder.com/40'} alt={pm.name} style={{ width: 40, height: 40, borderRadius: 8 }} />
                         <span>{pm.name}</span>
                       </div>
                     ))}
@@ -496,9 +484,7 @@ const RegisterPage = () => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   SURVEY PAGE
-═══════════════════════════════════════════ */
+
 const SurveyPage = () => {
   const { t } = useTranslation();
   const [form, setForm] = useState({
@@ -637,9 +623,7 @@ const SurveyPage = () => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   DASHBOARD
-═══════════════════════════════════════════ */
+
 const DashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
@@ -657,7 +641,7 @@ const DashboardPage = () => {
       <Shell />
       <div className="page-body fade-up">
 
-        {/* Profile hero — top heatmap priority */}
+        {}
         <div className="profile-hero-card">
           <div className="profile-hero-inner">
             {user.imageUrl
@@ -674,7 +658,7 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Stat pills */}
+        {}
         <div className="stat-row">
           <div className="stat-pill accent">
             <p className="stat-label">Status</p>
@@ -690,7 +674,7 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Quick actions */}
+        {}
         <span className="section-eyebrow-sm">Quick Actions</span>
         <div className="quick-grid">
           <div className="quick-card" onClick={() => navigate('/profile')}>
@@ -722,7 +706,7 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* About */}
+        {}
         <span className="section-eyebrow-sm">About</span>
         <div className="data-card">
           <div className="data-card-header">
@@ -744,9 +728,7 @@ const DashboardPage = () => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   SEARCH PAGE
-═══════════════════════════════════════════ */
+
 const SearchPage = () => {
   const { t } = useTranslation();
   const [q, setQ] = useState({ name:'', fatherName:'', nid:'' });
@@ -781,7 +763,7 @@ const SearchPage = () => {
           Verify approved members from the society registry.
         </p>
 
-        {/* Primary search bar */}
+        {}
         <div style={{ position:'relative', marginBottom:10 }}>
           <MagnifyingGlass size={18} style={{ position:'absolute', left:13, top:'50%', transform:'translateY(-50%)', color:'var(--grey-400)', pointerEvents:'none' }} />
           <input
@@ -795,7 +777,7 @@ const SearchPage = () => {
           />
         </div>
 
-        {/* Secondary filters */}
+        {}
         <div className="input-row input-row-2" style={{ marginBottom:24 }}>
           <input type="text" className="field-input" placeholder="Father's name" value={q.fatherName} onChange={e => setQ({ ...q, fatherName: e.target.value })} style={{ fontSize:'0.875rem' }} />
           <input type="text" className="field-input" placeholder="NID number" value={q.nid} onChange={e => setQ({ ...q, nid: e.target.value })} style={{ fontSize:'0.875rem' }} />
@@ -839,9 +821,7 @@ const SearchPage = () => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   PROFILE PAGE
-═══════════════════════════════════════════ */
+
 const ProfilePage = () => {
   const { user } = useAuthStore();
   const { t } = useTranslation();
@@ -893,7 +873,7 @@ const ProfilePage = () => {
       <Shell />
       <div className="page-body fade-up">
 
-        {/* Profile hero */}
+        {}
         <div className="profile-hero-card">
           <div className="profile-hero-inner">
             {user.imageUrl
@@ -913,7 +893,7 @@ const ProfilePage = () => {
            {generatingPdf ? <><Spinner size={18} style={{ animation: 'spin 1s linear infinite' }} /> Generating PDF...</> : <><DownloadSimple size={18} weight="bold" /> Download ID Card</>}
         </button>
 
-        {/* Identity records */}
+        {}
         <span className="section-eyebrow-sm">Identity Records</span>
         <div className="data-card">
           <div className="data-card-header">
@@ -938,7 +918,7 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Correction form — lower visual priority */}
+        {}
         <span className="section-eyebrow-sm">Corrections</span>
         <div className="action-card">
           <p className="action-card-title">
@@ -972,7 +952,7 @@ const ProfilePage = () => {
           )}
         </div>
 
-        {/* --- HIDDEN ID CARD FOR PDF EXPORT --- */}
+        {}
         <div className="idc-hide">
           <div ref={idCardRef} className="id-card-export">
             <div className="idc-header">
@@ -1010,21 +990,36 @@ const ProfilePage = () => {
                   <div className="idc-value">{user.phone || '—'}</div>
                 </div>
               </div>
-            </div>
-            <div className="idc-footer">
-              This is a digitally verified identity card.
+              <div className="idc-footer">
+                This is a digitally verified identity card.
+              </div>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
 };
 
+
 /* ═══════════════════════════════════════════
    JOB APPLICATION PAGE (ApplyPage)
 ═══════════════════════════════════════════ */
+const Section = ({ title, icon: Icon, children, step: s, currentStep }) => {
+  if (currentStep !== s) return null;
+  return (
+    <div className="fade-up">
+      <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
+        <div style={{ padding:10, borderRadius:12, background:'var(--primary)', color:'white' }}>
+          <Icon size={24} weight="duotone" />
+        </div>
+        <h2 style={{ fontSize:'1.4rem', fontWeight:800 }}>{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+};
+
 const ApplyPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -1048,6 +1043,7 @@ const ApplyPage = () => {
     photo: null,
     signature: null
   });
+
 
   useEffect(() => {
     axiosClient.get('/public/settings').then(r => {
@@ -1097,20 +1093,6 @@ const ApplyPage = () => {
     }
   };
 
-  const Section = ({ title, icon: Icon, children, step: s }) => {
-    if (step !== s) return null;
-    return (
-      <div className="fade-up">
-        <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
-          <div style={{ padding:10, borderRadius:12, background:'var(--primary)', color:'white' }}>
-            <Icon size={24} weight="duotone" />
-          </div>
-          <h2 style={{ fontSize:'1.4rem', fontWeight:800 }}>{title}</h2>
-        </div>
-        {children}
-      </div>
-    );
-  };
 
   if (!settings) return <div className="loading-screen"><Spinner size={40} /></div>;
 
@@ -1129,8 +1111,8 @@ const ApplyPage = () => {
             </div>
           </div>
 
-          {/* STEP 1: JOB DETAILS */}
-          <Section step={1} title="Applied Position" icon={Briefcase}>
+          {}
+          <Section step={1} currentStep={step} title="Applied Position" icon={Briefcase}>
             <div className="form-group">
               <label className="field-label">Post Applied For (আবেদনকৃত পদ) *</label>
               <input className="field-input" value={formData.postAppliedFor} onChange={e => set('postAppliedFor', e.target.value)} required placeholder="e.g. Sales Officer" />
@@ -1149,8 +1131,8 @@ const ApplyPage = () => {
             </div>
           </Section>
 
-          {/* STEP 2: PERSONAL INFO */}
-          <Section step={2} title="Personal Information" icon={UserSquare}>
+          {}
+          <Section step={2} currentStep={step} title="Personal Information" icon={UserSquare}>
             <div className="input-row input-row-2">
               <div className="form-group">
                 <label className="field-label">Name (Bengali/বাংলা) *</label>
@@ -1195,8 +1177,8 @@ const ApplyPage = () => {
             </div>
           </Section>
 
-          {/* STEP 3: FINANCIAL & CONTACT */}
-          <Section step={3} title="Contact & Financial" icon={Phone}>
+          {}
+          <Section step={3} currentStep={step} title="Contact & Financial" icon={Phone}>
             <div className="input-row input-row-2">
               <div className="form-group">
                 <label className="field-label">Mobile Number *</label>
@@ -1239,8 +1221,8 @@ const ApplyPage = () => {
             </div>
           </Section>
 
-          {/* STEP 4: EDUCATION & NOMINEE */}
-          <Section step={4} title="Qualification & Nominee" icon={IdentificationCard}>
+          {}
+          <Section step={4} currentStep={step} title="Qualification & Nominee" icon={IdentificationCard}>
             <p style={{ fontWeight:700, marginBottom:10 }}>Educational Qualifications</p>
             <div className="education-table-wrapper" style={{ overflowX:'auto', marginBottom:20 }}>
               <table style={{ width:'100%', minWidth:500, borderCollapse:'collapse' }}>
@@ -1290,8 +1272,8 @@ const ApplyPage = () => {
             </div>
           </Section>
 
-          {/* STEP 5: ATTACHMENTS */}
-          <Section step={5} title="Attachments & Declaration" icon={PencilSimple}>
+          {}
+          <Section step={5} currentStep={step} title="Attachments & Declaration" icon={PencilSimple}>
             <div className="m-grid m-grid-2">
               <div className="form-group">
                 <label className="field-label">Passport Photo *</label>
@@ -1336,9 +1318,7 @@ const ApplyPage = () => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   FORCE PASSWORD RESET
-═══════════════════════════════════════════ */
+
 const ForcePasswordReset = () => {
   const [pw, setPw] = useState('');
   const navigate = useNavigate();
@@ -1376,9 +1356,7 @@ const ForcePasswordReset = () => {
   );
 };
 
-/* ═══════════════════════════════════════════
-   APP ROOT
-═══════════════════════════════════════════ */
+
 export default function App() {
   const { isAuthenticated, user } = useAuthStore();
 
