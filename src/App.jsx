@@ -12,6 +12,7 @@ import { jsPDF } from 'jspdf';
 import { useTranslation } from 'react-i18next';
 import axiosClient from './api/axiosClient';
 import { useAuthStore } from './store/useAuthStore';
+import ImageCapture from './components/ImageCapture';
 import './i18n';
 
 /* ─────────────────────────────────────────
@@ -424,7 +425,7 @@ const RegisterPage = () => {
               </div>
               <div className="field-group" style={{ marginBottom:24 }}>
                 <label className="field-label">Profile Photo *</label>
-                <input type="file" className="field-input" accept="image/*" onChange={e => set('image', e.target.files[0])} required style={{ height:'auto', padding:'10px 14px', fontSize:'0.875rem', background:'var(--grey-50)' }} />
+                <ImageCapture onImageChange={(file) => set('image', file)} currentImage={null} />
               </div>
               <div className="form-spacer" />
               <div className="fixed-actions">
