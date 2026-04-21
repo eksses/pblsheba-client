@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Component, memo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Leaf, UserPlus, SignIn, MagnifyingGlass, CaretLeft, Phone, LockKey,
@@ -107,7 +107,7 @@ const NotFound = () => {
   );
 };
 
-class ErrorBoundary extends React.Component {
+class ErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { hasError: false }; }
   static getDerivedStateFromError(error) { return { hasError: true }; }
   render() {
@@ -1129,7 +1129,7 @@ const ProfilePage = () => {
 /* ═══════════════════════════════════════════
    JOB APPLICATION PAGE (ApplyPage)
 ═══════════════════════════════════════════ */
-const Section = React.memo(({ title, icon: Icon, children, step: s, currentStep }) => {
+const Section = memo(({ title, icon: Icon, children, step: s, currentStep }) => {
   if (currentStep !== s) return null;
   return (
     <div className="section-container">
