@@ -12,7 +12,7 @@ const AttachmentsDeclarationStep = ({ formData, set, t }) => {
         <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('attachments_declaration')}</h2>
       </div>
 
-      <div className="m-grid m-grid-2">
+      <div className="input-row input-row-2">
         <div className="form-group">
           <label className="field-label">{t('passport_photo')} *</label>
           <ImageCapture onImageChange={f => set('photo', f)} currentImage={null} />

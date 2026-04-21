@@ -1,0 +1,137 @@
+.apply-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.apply-sidebar {
+  width: 280px;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 30px 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  position: sticky;
+  top: 100px;
+  display: none;
+}
+
+.apply-main {
+  flex: 1;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 40px 30px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
+  border: 1px solid var(--border);
+  min-width: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.apply-main:hover {
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -6px rgba(0,0,0,0.04);
+}
+
+@media (min-width: 860px) {
+  .apply-sidebar {
+    display: block;
+  }
+}
+
+@media (max-width: 859px) {
+  .apply-container {
+    max-width: 700px;
+    margin: 20px auto;
+    flex-direction: column;
+  }
+  .apply-main {
+    width: 100%;
+    padding: 30px 20px;
+  }
+}
+
+.sidebar-step {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 24px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.sidebar-step.active {
+  opacity: 1;
+}
+
+.sidebar-step.completed {
+  opacity: 0.8;
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--grey-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+}
+
+.active .step-num {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+  box-shadow: 0 4px 12px rgba(22,163,74,0.3);
+}
+
+.completed .step-num {
+  background: var(--green-mid);
+  border-color: var(--green);
+  color: var(--green-dark);
+}
+
+.step-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--grey-700);
+}
+
+.active .step-label {
+  color: var(--grey-900);
+}
+
+.step-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.step-header h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--grey-900);
+  margin-bottom: 8px;
+}
+
+.step-header p {
+  font-size: 1rem;
+  color: var(--grey-500);
+}
+
+/* Mobile indicator hidden on desktop */
+@media (min-width: 860px) {
+  .mobile-step-indicator {
+    display: none;
+  }
+}
+
+.mobile-step-indicator {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 20px;
+}

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, CaretLeft, SealCheck } from '@phosphor-icons/react';
+import { ArrowRight, CaretLeft, SealCheck, Check } from '@phosphor-icons/react';
 import axiosClient from '../../api/axiosClient';
 import { useToast } from '../../context/ToastContext';
 import Spinner from '../../components/ui/Spinner';
 import GlobalLoading from '../../components/common/GlobalLoading';
 import PublicNavbar from '../../layouts/PublicNavbar';
+import './ApplyPage.css';
 
 // Modular Step Components
 import JobPostStep from './components/JobPostStep';
@@ -53,7 +54,6 @@ const ApplyPage = () => {
   }, [navigate, toast]);
 
   const set = (f, v) => setFormData(prev => ({ ...prev, [f]: v }));
-  
   const setEdu = (i, f, v) => {
     const next = [...formData.education];
     next[i][f] = v;
@@ -93,6 +93,14 @@ const ApplyPage = () => {
 
   if (!settings) return <GlobalLoading open={true} text="Checking application status..." />;
 
+  const steps = [
+    { id: 1, label: t('post_applied_for') },
+    { id: 2, label: t('personal_info') },
+    { id: 3, label: t('contact_financial') },
+    { id: 4, label: t('qualification_nominee') },
+    { id: 5, label: t('attachments_declaration') }
+  ];
+
   const renderStep = () => {
     switch (step) {
       case 1: return <JobPostStep formData={formData} set={set} t={t} />;
@@ -107,72 +115,87 @@ const ApplyPage = () => {
   return (
     <div style={{ background: 'var(--grey-50)', minHeight: '100vh', paddingBottom: 60 }}>
       <PublicNavbar />
-      <div className="container" style={{ maxWidth: 700, marginTop: 40 }}>
-        <form onSubmit={handleSubmit} style={{ 
-          background: 'var(--white)', 
-          padding: '40px 30px', 
-          margin: '0 auto', 
-          borderRadius: 'var(--radius-xl)', 
-          boxShadow: 'var(--shadow-sm)', 
-          border: '1px solid var(--border)' 
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: 30 }}>
-            <h1 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: 8 }}>{t('job_application_form')}</h1>
-            <p className="text-muted">{t('apply_professional_role')}</p>
-            <div className="step-indicator" style={{ display: 'flex', gap: 6, justifyContent: 'center', marginTop: 20 }}>
-              {[1, 2, 3, 4, 5].map(i => (
-                <div 
-                  key={i} 
-                  style={{ 
-                    height: 6, 
-                    width: step === i ? 40 : 20, 
-                    borderRadius: 3, 
-                    background: step >= i ? 'var(--primary)' : 'var(--border)', 
-                    transition: '0.3s' 
-                  }} 
-                />
-              ))}
+      
+      <div className="apply-container">
+        {/* Desktop Sidebar */}
+        <aside className="apply-sidebar">
+          <div style={{ marginBottom: 30 }}>
+            <h3 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--green)', letterSpacing: '0.1em' }}>APPLY NOW</h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--grey-400)', marginTop: 4 }}>Complete all 5 steps</p>
+          </div>
+          {steps.map(s => (
+            <div key={s.id} className={`sidebar-step ${step === s.id ? 'active' : ''} ${step > s.id ? 'completed' : ''}`}>
+              <div className="step-num">
+                {step > s.id ? <Check size={16} weight="bold" /> : s.id}
+              </div>
+              <span className="step-label">{s.label}</span>
             </div>
-          </div>
+          ))}
+        </aside>
 
-          <div className="fade-up">
-            {renderStep()}
-          </div>
+        {/* Main Content Area */}
+        <div className="apply-main">
+          <form onSubmit={handleSubmit}>
+            <div className="step-header">
+              <h1>{t('job_application_form')}</h1>
+              <p>{t('apply_professional_role')}</p>
+              
+              {/* Mobile Step Indicator */}
+              <div className="mobile-step-indicator">
+                {steps.map(s => (
+                  <div 
+                    key={s.id} 
+                    style={{ 
+                      height: 6, 
+                      width: step === s.id ? 40 : 20, 
+                      borderRadius: 3, 
+                      background: step >= s.id ? 'var(--green)' : 'var(--border)', 
+                      transition: '0.3s' 
+                    }} 
+                  />
+                ))}
+              </div>
+            </div>
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 30 }}>
-            {step > 1 && (
-              <button 
-                type="button" 
-                className="btn btn-outline" 
-                style={{ flex: 1 }} 
-                onClick={() => setStep(step - 1)}
-                disabled={loading}
-              >
-                <CaretLeft size={18} /> {t('back')}
-              </button>
-            )}
-            {step < 5 ? (
-              <button 
-                type="button" 
-                className="btn btn-primary" 
-                style={{ flex: 2, height: 48 }} 
-                onClick={() => setStep(step + 1)}
-              >
-                {t('next')} <ArrowRight size={18} />
-              </button>
-            ) : (
-              <button 
-                type="submit" 
-                className="btn btn-primary" 
-                style={{ flex: 2, height: 48 }} 
-                disabled={loading}
-              >
-                {loading ? <Spinner size={20} /> : <SealCheck size={20} weight="fill" />}
-                {t('submit_application')}
-              </button>
-            )}
-          </div>
-        </form>
+            <div className="fade-up">
+              {renderStep()}
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 40 }}>
+              {step > 1 && (
+                <button 
+                  type="button" 
+                  className="btn btn-outline" 
+                  style={{ flex: 1 }} 
+                  onClick={() => setStep(step - 1)}
+                  disabled={loading}
+                >
+                  <CaretLeft size={18} /> {t('back')}
+                </button>
+              )}
+              {step < 5 ? (
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  style={{ flex: 2, height: 48 }} 
+                  onClick={() => setStep(step + 1)}
+                >
+                  {t('next')} <ArrowRight size={18} />
+                </button>
+              ) : (
+                <button 
+                  type="submit" 
+                  className="btn btn-primary" 
+                  style={{ flex: 2, height: 48 }} 
+                  disabled={loading}
+                >
+                  {loading ? <Spinner size={20} /> : <SealCheck size={20} weight="fill" />}
+                  {t('submit_application')}
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
