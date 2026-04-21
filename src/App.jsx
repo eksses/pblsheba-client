@@ -14,6 +14,116 @@ import axiosClient from './api/axiosClient';
 import { useAuthStore } from './store/useAuthStore';
 import ImageCapture from './components/ImageCapture';
 import './i18n';
+import { createPortal } from 'react-dom';
+
+const ToastContext = createPortal(null, document.body); 
+const useToast = () => {
+  const context = window.__pbl_toast;
+  if (!context) throw new Error('useToast must be used within ToastProvider');
+  return context;
+};
+
+const ToastProvider = ({ children }) => {
+  const [toasts, setToasts] = useState([]);
+  const add = (type, message) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setToasts(t => [...t, { id, type, message }]);
+    setTimeout(() => remove(id), type === 'error' ? 6000 : 3500);
+  };
+  const remove = (id) => {
+    setToasts(t => t.map(x => x.id === id ? { ...x, removing: true } : x));
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 200);
+  };
+  window.__pbl_toast = {
+    success: (m) => add('success', m),
+    error: (m) => add('error', m),
+    info: (m) => add('info', m)
+  };
+  return (
+    <>
+      {children}
+      {createPortal(
+        <div className="toast-container">
+          {toasts.map(t => (
+            <div key={t.id} className={`toast toast-${t.type} ${t.removing ? 'removing' : ''}`} onClick={() => remove(t.id)}>
+              <div className="toast-icon">
+                {t.type === 'success' && <CheckCircle weight="bold" />}
+                {t.type === 'error' && <Warning weight="bold" />}
+                {t.type === 'info' && <SignIn weight="bold" />}
+              </div>
+              <div className="toast-content">{t.message}</div>
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
+    </>
+  );
+};
+
+const ConfirmModal = ({ open, title, message, onConfirm, onCancel, type = 'danger' }) => {
+  if (!open) return null;
+  return createPortal(
+    <div className="confirm-modal-backdrop">
+      <div className="confirm-modal-content">
+        <div style={{ padding: 24, textAlign: 'center' }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: type === 'danger' ? 'var(--red-50)' : 'var(--blue-50)', color: type === 'danger' ? 'var(--red-600)' : 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            {type === 'danger' ? <Warning size={32} weight="duotone" /> : <ShieldCheck size={32} weight="duotone" />}
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>{title}</h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: 1.5 }}>{message}</p>
+        </div>
+        <div style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
+          <button className="btn btn-ghost" style={{ flex: 1, borderRadius: 0, height: 56, fontWeight: 700 }} onClick={onCancel}>Cancel</button>
+          <button className={`btn btn-${type === 'danger' ? 'danger' : 'primary'}`} style={{ flex: 1, borderRadius: 0, height: 56, fontWeight: 700 }} onClick={onConfirm}>Confirm</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+const GlobalLoading = ({ open, text }) => {
+  if (!open) return null;
+  return createPortal(
+    <div className="global-loading-overlay">
+      <Spinner size={40} className="spin" weight="bold" color="var(--primary)" />
+      <div className="loading-text">{text || 'Processing...'}</div>
+    </div>,
+    document.body
+  );
+};
+
+const NotFound = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="fade-up" style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:20, textAlign:'center' }}>
+      <div style={{ fontSize:'6rem', fontWeight:900, color:'var(--grey-200)', marginBottom:-20 }}>404</div>
+      <House size={120} weight="duotone" color="var(--primary)" style={{ opacity:0.1, marginBottom:30 }} />
+      <h1 style={{ fontSize:'2rem', fontWeight:900, marginBottom:10 }}>Page Not Found</h1>
+      <p className="text-muted" style={{ maxWidth:400, marginBottom:30 }}>The page you are looking for might have been removed or is temporarily unavailable.</p>
+      <button className="btn btn-primary" onClick={() => navigate('/')}>Go to Home</button>
+    </div>
+  );
+};
+
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { hasError: false }; }
+  static getDerivedStateFromError(error) { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:20, textAlign:'center' }}>
+          <Warning size={64} color="var(--red-500)" weight="duotone" style={{ marginBottom:20 }} />
+          <h1 style={{ fontSize:'1.5rem', fontWeight:900 }}>Something went wrong</h1>
+          <p className="text-muted" style={{ marginBottom:20 }}>The application encountered an unexpected error.</p>
+          <button className="btn btn-primary" onClick={() => window.location.reload()}>Reload Page</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 
 const StatusBadge = ({ status }) => {
@@ -347,8 +457,10 @@ const LoginPage = () => {
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const toast = useToast();
   const [step, setStep] = useState(1);
   const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name:'', fatherName:'', dob:'1990-01-01', nid:'', phone:'',
     paymentNumber:'', password:'', paymentMethod:'', trxId:'', image:null
@@ -363,14 +475,16 @@ const RegisterPage = () => {
   }, []);
 
   const submit = async () => {
-    if (!form.trxId) return alert('Transaction ID is required.');
+    if (!form.trxId) return toast.error('Transaction ID is required.');
+    setLoading(true);
     try {
       const fd = new FormData();
       Object.keys(form).forEach(k => fd.append(k, form[k]));
       await axiosClient.post('/auth/register', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      alert(t('registration_success') || 'Submitted! Await admin approval.');
+      toast.success(t('registration_success') || 'Submitted! Await admin approval.');
       navigate('/');
-    } catch (err) { alert(err.response?.data?.message || 'Registration failed.'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Registration failed.'); }
+    finally { setLoading(false); }
   };
 
   const gw = settings?.paymentMethods?.find(p => p.name === form.paymentMethod);
@@ -429,7 +543,7 @@ const RegisterPage = () => {
               <div className="form-spacer" />
               <div className="fixed-actions">
                 <button className="btn btn-primary btn-full" style={{ height:48 }}
-                  onClick={() => { if (!form.name||!form.phone||!form.nid||!form.password||!form.image) return alert('Complete all required fields.'); setStep(2); }}>
+                  onClick={() => { if (!form.name||!form.phone||!form.nid||!form.password||!form.image) return toast.error('Complete all required fields.'); setStep(2); }}>
                   Continue <ArrowRight size={17} weight="bold" />
                 </button>
               </div>
@@ -516,8 +630,9 @@ const SurveyPage = () => {
         childrenGirl: '', monthlyIncome: '', phone: ''
       });
       setTimeout(() => setSuccess(false), 3000);
+      toast.success(t('success_survey'));
     } catch (err) {
-      alert(err.response?.data?.message || 'Error submitting survey');
+      toast.error(err.response?.data?.message || 'Error submitting survey');
     } finally {
       setLoading(false);
     }
@@ -845,8 +960,9 @@ const ProfilePage = () => {
     try {
       await axiosClient.patch('/users/request-edit', { requestedChanges: { explanation: correction } });
       setSubmitted(true); setCorrection('');
+      toast.success(t('correction_submitted') || 'Correction request sent!');
       setTimeout(() => setSubmitted(false), 5000);
-    } catch { alert('Error submitting. Please try again.'); }
+    } catch { toast.error('Error submitting. Please try again.'); }
     finally { setSubmitting(false); }
   };
 
@@ -867,9 +983,10 @@ const ProfilePage = () => {
       });
       pdf.addImage(imgData, 'PNG', 0, 0, 400, canvas.height * (400 / canvas.width));
       pdf.save(`${user.name.replace(/\s+/g, '_')}_ID_Card.pdf`);
+      toast.success(t('pdf_ready'));
     } catch (err) {
       console.error('PDF error', err);
-      alert('Failed to generate PDF. Make sure your profile picture is accessible.');
+      toast.error('Failed to generate PDF.');
     } finally {
       setGeneratingPdf(false);
     }
@@ -1056,7 +1173,7 @@ const ApplyPage = () => {
     axiosClient.get('/public/settings').then(r => {
       setSettings(r.data);
       if (r.data && r.data.jobApplicationsEnabled === false) {
-        alert('Job applications are currently closed.');
+        toast.info('Job applications are currently closed.');
         navigate('/');
       }
     }).catch(() => {});
@@ -1072,7 +1189,7 @@ const ApplyPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.photo || !formData.signature) {
-      alert('Photo and Signature are required!');
+      toast.error('Photo and Signature are required!');
       return;
     }
     setLoading(true);
@@ -1091,17 +1208,16 @@ const ApplyPage = () => {
       await axiosClient.post('/public/career/apply', fd, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      alert('Application submitted successfully!');
+      toast.success('Application submitted successfully!');
       navigate('/');
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to submit application');
+      toast.error(err.response?.data?.message || 'Failed to submit application');
     } finally {
       setLoading(false);
     }
   };
 
-
-  if (!settings) return <div className="loading-screen"><Spinner size={40} /></div>;
+  if (!settings) return <GlobalLoading open={true} text="Checking application status..." />;
 
   return (
     <div style={{ background:'var(--grey-50)', minHeight:'100vh', paddingBottom:60 }}>
@@ -1109,8 +1225,8 @@ const ApplyPage = () => {
       <div className="container" style={{ maxWidth:700, marginTop:40 }}>
         <form onSubmit={handleSubmit} style={{ background:'var(--white)', padding:'40px 30px', margin:'0 auto', borderRadius:'var(--radius-xl)', boxShadow:'var(--shadow-sm)', border:'1px solid var(--border)' }}>
           <div style={{ textAlign:'center', marginBottom:30 }}>
-            <h1 style={{ fontSize:'1.8rem', fontWeight:900, marginBottom:8 }}>Job Application Form</h1>
-            <p className="text-muted">Apply for a professional role at PBL Sheba Somaj</p>
+            <h1 style={{ fontSize:'1.8rem', fontWeight:900, marginBottom:8 }}>{t('job_application_form')}</h1>
+            <p className="text-muted">{t('apply_professional_role')}</p>
             <div className="step-indicator" style={{ display:'flex', gap:6, justifyContent:'center', marginTop:20 }}>
               {[1,2,3,4,5].map(i => (
                 <div key={i} style={{ height:6, width: step === i ? 40 : 20, borderRadius:3, background: step >= i ? 'var(--primary)' : 'var(--border)', transition:'0.3s' }} />
@@ -1119,18 +1235,18 @@ const ApplyPage = () => {
           </div>
 
           {}
-          <Section step={1} currentStep={step} title="Applied Position" icon={Briefcase}>
+          <Section step={1} currentStep={step} title={t('post_applied_for')} icon={Briefcase}>
             <div className="form-group">
-              <label className="field-label" htmlFor="postAppliedFor">Post Applied For (আবেদনকৃত পদ) *</label>
+              <label className="field-label" htmlFor="postAppliedFor">{t('post_applied_for')} *</label>
               <input id="postAppliedFor" className="field-input" value={formData.postAppliedFor} onChange={e => set('postAppliedFor', e.target.value)} required placeholder="e.g. Sales Officer" autoComplete="off" />
             </div>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label" htmlFor="officeNameCode">Office Name/Code (অফিস কোড)</label>
+                <label className="field-label" htmlFor="officeNameCode">{t('office_name_code')}</label>
                 <input id="officeNameCode" className="field-input" value={formData.officeNameCode} onChange={e => set('officeNameCode', e.target.value)} autoComplete="off" />
               </div>
               <div className="form-group">
-                <label className="field-label" htmlFor="roleCode">Role Category *</label>
+                <label className="field-label" htmlFor="roleCode">{t('role_category')} *</label>
                 <select id="roleCode" className="field-input" value={formData.roleCode} onChange={e => set('roleCode', e.target.value)}>
                   {['SO', 'ASM', 'RSM', 'DSM', 'NSM', 'D.CMO'].map(v => <option key={v} value={v}>{v}</option>)}
                 </select>
@@ -1139,82 +1255,82 @@ const ApplyPage = () => {
           </Section>
 
           {}
-          <Section step={2} currentStep={step} title="Personal Information" icon={UserSquare}>
+          <Section step={2} currentStep={step} title={t('personal_info')} icon={UserSquare}>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label" htmlFor="nameBn">Name (Bengali/বাংলা) *</label>
+                <label className="field-label" htmlFor="nameBn">{t('name_bn')} *</label>
                 <input id="nameBn" className="field-input" value={formData.nameBn} onChange={e => set('nameBn', e.target.value)} required autoComplete="off" />
               </div>
               <div className="form-group">
-                <label className="field-label" htmlFor="nameEn">Name (English) *</label>
+                <label className="field-label" htmlFor="nameEn">{t('name_en')} *</label>
                 <input id="nameEn" className="field-input" value={formData.nameEn} onChange={e => set('nameEn', e.target.value)} required autoComplete="off" />
               </div>
             </div>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label" htmlFor="fatherName">Father's Name (পিতার নাম) *</label>
+                <label className="field-label" htmlFor="fatherName">{t('father_name')} *</label>
                 <input id="fatherName" className="field-input" value={formData.fatherName} onChange={e => set('fatherName', e.target.value)} required autoComplete="off" />
               </div>
               <div className="form-group">
-                <label className="field-label" htmlFor="motherName">Mother's Name (মাতার নাম) *</label>
+                <label className="field-label" htmlFor="motherName">{t('mother_name')} *</label>
                 <input id="motherName" className="field-input" value={formData.motherName} onChange={e => set('motherName', e.target.value)} required autoComplete="off" />
               </div>
             </div>
             <div className="form-group">
-              <label className="field-label">Present Address (বর্তমান ঠিকানা) *</label>
+              <label className="field-label">{t('present_address')} *</label>
               <textarea className="field-input" value={formData.presentAddress} onChange={e => set('presentAddress', e.target.value)} required rows={2} />
             </div>
             <div className="form-group">
-              <label className="field-label">Permanent Address (স্থায়ী ঠিকানা) *</label>
+              <label className="field-label">{t('permanent_address')} *</label>
               <textarea className="field-input" value={formData.permanentAddress} onChange={e => set('permanentAddress', e.target.value)} required rows={2} />
             </div>
             <div className="input-row input-row-3">
               <div className="form-group">
-                <label className="field-label" htmlFor="dob">DOB *</label>
+                <label className="field-label" htmlFor="dob">{t('dob')} *</label>
                 <input id="dob" className="field-input" type="date" value={formData.dob} onChange={e => set('dob', e.target.value)} required />
               </div>
               <div className="form-group">
-                <label className="field-label" htmlFor="age">Age</label>
+                <label className="field-label" htmlFor="age">{t('age')}</label>
                 <input id="age" className="field-input" type="number" inputMode="numeric" value={formData.age} onChange={e => set('age', e.target.value)} />
               </div>
               <div className="form-group">
-                <label className="field-label" htmlFor="nid">NID *</label>
+                <label className="field-label" htmlFor="nid">{t('nid')} *</label>
                 <input id="nid" className="field-input" value={formData.nid} onChange={e => set('nid', e.target.value)} required autoComplete="off" />
               </div>
             </div>
           </Section>
 
           {}
-          <Section step={3} currentStep={step} title="Contact & Financial" icon={Phone}>
+          <Section step={3} currentStep={step} title={t('contact_financial')} icon={Phone}>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label" htmlFor="mobile">Mobile Number *</label>
+                <label className="field-label" htmlFor="mobile">{t('phone')} *</label>
                 <input id="mobile" className="field-input" type="text" inputMode="tel" value={formData.mobile} onChange={e => set('mobile', e.target.value)} required autoComplete="off" />
               </div>
               <div className="form-group">
-                <label className="field-label" htmlFor="email">Email Address</label>
+                <label className="field-label" htmlFor="email">{t('email')} Address</label>
                 <input id="email" className="field-input" type="email" value={formData.email} onChange={e => set('email', e.target.value)} autoComplete="off" />
               </div>
             </div>
-            <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>Bank Account (if any)</p>
+            <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>{t('bank_account_any')}</p>
             <div className="input-row input-row-3">
               <div className="form-group">
-                <label className="field-label">Bank Name</label>
+                <label className="field-label">{t('bank_name')}</label>
                 <input className="field-input" value={formData.bankName} onChange={e => set('bankName', e.target.value)} />
               </div>
               <div className="form-group">
-                <label className="field-label">Branch</label>
+                <label className="field-label">{t('branch')}</label>
                 <input className="field-input" value={formData.branch} onChange={e => set('branch', e.target.value)} />
               </div>
               <div className="form-group">
-                <label className="field-label">Routing No</label>
+                <label className="field-label">{t('routing_no')}</label>
                 <input className="field-input" value={formData.routingNo} onChange={e => set('routingNo', e.target.value)} />
               </div>
             </div>
-            <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>Mobile Banking</p>
+            <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>{t('mobile_banking')}</p>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label">Banking Type</label>
+                <label className="field-label">{t('banking_type')}</label>
                 <select className="field-input" value={formData.mobileBankingType} onChange={e => set('mobileBankingType', e.target.value)}>
                   <option value="bKash">bKash</option>
                   <option value="Nagad">Nagad</option>
@@ -1222,24 +1338,24 @@ const ApplyPage = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label className="field-label">Account Number</label>
+                <label className="field-label">{t('account_number')}</label>
                 <input className="field-input" value={formData.mobileBankingNumber} onChange={e => set('mobileBankingNumber', e.target.value)} />
               </div>
             </div>
           </Section>
 
           {}
-          <Section step={4} currentStep={step} title="Qualification & Nominee" icon={IdentificationCard}>
-            <p style={{ fontWeight:700, marginBottom:10 }}>Educational Qualifications</p>
+          <Section step={4} currentStep={step} title={t('qualification_nominee')} icon={IdentificationCard}>
+            <p style={{ fontWeight:700, marginBottom:10 }}>{t('educational_qualifications')}</p>
             <div className="education-table-wrapper" style={{ overflowX:'auto', marginBottom:20 }}>
               <table style={{ width:'100%', minWidth:500, borderCollapse:'collapse' }}>
                 <thead>
                   <tr style={{ background:'var(--grey-100)', textAlign:'left' }}>
-                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>Exam</th>
-                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>Group/Subject</th>
-                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>GPA/Result</th>
-                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>Year</th>
-                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>Board</th>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>{t('exam')}</th>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>{t('group_subject')}</th>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>{t('gpa_result')}</th>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>{t('year')}</th>
+                    <th style={{ padding:8, border:'1px solid var(--border)', fontSize:'0.75rem' }}>{t('board')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1256,47 +1372,47 @@ const ApplyPage = () => {
               </table>
             </div>
 
-            <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>Nominee Information</p>
+            <p style={{ fontWeight:700, margin:'10px 0', borderTop:'1px solid var(--border)', paddingTop:15 }}>{t('nominee_info')}</p>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label">Nominee Name *</label>
+                <label className="field-label">{t('nominee_name')} *</label>
                 <input className="field-input" value={formData.nomineeName} onChange={e => set('nomineeName', e.target.value)} required />
               </div>
               <div className="form-group">
-                <label className="field-label">Relationship *</label>
+                <label className="field-label">{t('relationship')} *</label>
                 <input className="field-input" value={formData.nomineeRelationship} onChange={e => set('nomineeRelationship', e.target.value)} required />
               </div>
             </div>
             <div className="input-row input-row-2">
               <div className="form-group">
-                <label className="field-label">Nominee Mobile</label>
+                <label className="field-label">{t('nominee_mobile')}</label>
                 <input className="field-input" value={formData.nomineeMobile} onChange={e => set('nomineeMobile', e.target.value)} />
               </div>
               <div className="form-group">
-                <label className="field-label">Nominee Address</label>
+                <label className="field-label">{t('nominee_address')}</label>
                 <input className="field-input" value={formData.nomineeAddress} onChange={e => set('nomineeAddress', e.target.value)} />
               </div>
             </div>
           </Section>
 
           {}
-          <Section step={5} currentStep={step} title="Attachments & Declaration" icon={PencilSimple}>
+          <Section step={5} currentStep={step} title={t('attachments_declaration')} icon={PencilSimple}>
             <div className="m-grid m-grid-2">
               <div className="form-group">
-                <label className="field-label">Passport Photo *</label>
+                <label className="field-label">{t('passport_photo')} *</label>
                 <ImageCapture onImageChange={f => set('photo', f)} currentImage={null} />
               </div>
               <div className="form-group">
-                <label className="field-label">Signature *</label>
+                <label className="field-label">{t('signature')} *</label>
                 <ImageCapture onImageChange={f => set('signature', f)} currentImage={null} />
-                <p style={{ fontSize:'0.7rem', color:'var(--text-muted)', marginTop:4 }}>Upload or take photo of your handwritten signature.</p>
+                <p style={{ fontSize:'0.7rem', color:'var(--text-muted)', marginTop:4 }}>{t('signature_hint')}</p>
               </div>
             </div>
             <div style={{ marginTop:24, padding:16, background:'var(--primary-light)', borderRadius:12, border:'1px solid var(--primary-border)' }}>
               <label style={{ display:'flex', gap:12, cursor:'pointer' }}>
                 <input type="checkbox" required style={{ width:20, height:20, accentColor:'var(--primary)' }} />
                 <span style={{ fontSize:'0.85rem', lineHeight:1.4 }}>
-                  I hereby declare that all the information provided above is true and accurate to the best of my knowledge. I understand that any false statement will disqualify my application.
+                  {t('declaration_text')}
                 </span>
               </label>
             </div>
@@ -1305,17 +1421,17 @@ const ApplyPage = () => {
           <div style={{ display:'flex', gap:10, marginTop:30 }}>
             {step > 1 && (
               <button type="button" className="btn btn-outline" style={{ flex:1 }} onClick={() => setStep(step - 1)}>
-                <CaretLeft size={18} /> Back
+                <CaretLeft size={18} /> {t('back')}
               </button>
             )}
             {step < 5 ? (
               <button type="button" className="btn btn-primary" style={{ flex:2, height:48 }} onClick={() => setStep(step + 1)}>
-                Next <ArrowRight size={18} />
+                {t('next')} <ArrowRight size={18} />
               </button>
             ) : (
               <button type="submit" className="btn btn-primary" style={{ flex:2, height:48 }} disabled={loading}>
                 {loading ? <Spinner size={20} style={{animation:'spin 1s linear infinite'}} /> : <SealCheck size={20} weight="fill" />}
-                Submit Application
+                {t('submit_application')}
               </button>
             )}
           </div>
@@ -1333,21 +1449,21 @@ const ForcePasswordReset = () => {
     e.preventDefault();
     try {
       await axiosClient.patch('/users/change-password', { newPassword: pw });
-      alert('Password updated! Please sign in again.');
+      toast.success('Password updated! Please sign in again.');
       useAuthStore.getState().logout();
       navigate('/login');
-    } catch { alert('Error. Please try again.'); }
+    } catch { toast.error('Error. Please try again.'); }
   };
   return (
     <div className="auth-page fade-up">
       <div className="auth-body" style={{ display:'flex', flexDirection:'column', justifyContent:'center' }}>
         <div className="auth-card">
           <div className="auth-logo"><ShieldCheck size={22} weight="fill" color="white" /></div>
-          <h1 className="auth-title">Set a new password</h1>
-          <p className="auth-sub">You need to create a permanent password before continuing.</p>
+          <h1 className="auth-title">{t('set_new_password')}</h1>
+          <p className="auth-sub">{t('permanent_password_desc')}</p>
           <form onSubmit={submit}>
             <div className="field-group" style={{ marginBottom:20 }}>
-              <label className="field-label">New Password</label>
+              <label className="field-label">{t('new_password_label')}</label>
               <div className="input-icon-wrap">
                 <LockKey size={16} />
                 <input type="password" className="field-input" placeholder="Choose a secure password" value={pw} onChange={e => setPw(e.target.value)} required />
@@ -1365,6 +1481,16 @@ const ForcePasswordReset = () => {
 
 
 export default function App() {
+  return (
+    <ErrorBoundary>
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
+    </ErrorBoundary>
+  );
+}
+
+function AppContent() {
   const { isAuthenticated, user } = useAuthStore();
 
   if (isAuthenticated && user?.firstLogin && user?.role !== 'member') {
@@ -1385,6 +1511,7 @@ export default function App() {
         <Route path="/search"   element={<SearchPage />} />
         <Route path="/survey"   element={<SurveyPage />} />
         <Route path="/profile"  element={<ProfilePage />} />
+        <Route path="*"         element={<NotFound />} />
       </Routes>
     </Router>
   );
