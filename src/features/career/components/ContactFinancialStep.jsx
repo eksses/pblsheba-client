@@ -38,23 +38,6 @@ const ContactFinancialStep = ({ formData, set, t }) => {
         </div>
       </div>
       <p style={{ fontWeight: 700, margin: '10px 0', borderTop: '1px solid var(--border)', paddingTop: 15 }}>
-        {t('bank_account_any')}
-      </p>
-      <div className="input-row input-row-3">
-        <div className="form-group">
-          <label className="field-label">{t('bank_name')}</label>
-          <input className="field-input" value={formData.bankName} onChange={e => set('bankName', e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label className="field-label">{t('branch')}</label>
-          <input className="field-input" value={formData.branch} onChange={e => set('branch', e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label className="field-label">{t('routing_no')}</label>
-          <input className="field-input" value={formData.routingNo} onChange={e => set('routingNo', e.target.value)} />
-        </div>
-      </div>
-      <p style={{ fontWeight: 700, margin: '10px 0', borderTop: '1px solid var(--border)', paddingTop: 15 }}>
         {t('mobile_banking')}
       </p>
       <div className="input-row input-row-2">

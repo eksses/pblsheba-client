@@ -26,11 +26,11 @@ const ApplyPage = () => {
   const [settings, setSettings] = useState(null);
   
   const [formData, setFormData] = useState({
-    postAppliedFor: '', officeNameCode: '', roleCode: 'SO',
+    postAppliedFor: '', officeNameCode: '', roleCode: 'FA',
     nameBn: '', nameEn: '', fatherName: '', motherName: '',
     presentAddress: '', permanentAddress: '', dob: '', age: '', religion: '', 
     nid: '', nationality: 'Bangladeshi', profession: '', maritalStatus: '', spouseName: '',
-    mobile: '', email: '', bankName: '', branch: '', routingNo: '',
+    mobile: '', email: '',
     mobileBankingType: 'bKash', mobileBankingNumber: '',
     nomineeName: '', nomineeAddress: '', nomineeRelationship: '', nomineeMobile: '',
     education: [

@@ -17,16 +17,24 @@ const BottomNav = () => {
 
   return (
     <nav className="bottom-nav">
-      {navItems.map(({ path, label, icon: Icon }) => (
-        <button 
-          key={path} 
-          onClick={() => navigate(path)} 
-          className={`bottom-nav-item${isAt(path) ? ' active' : ''}`}
-        >
-          <Icon size={22} weight={isAt(path) ? 'fill' : 'regular'} />
-          <span style={{ fontSize: '0.75rem', marginTop: 4 }}>{label}</span>
-        </button>
-      ))}
+      {navItems.map(({ path, label, icon: Icon }) => {
+        const active = isAt(path);
+        return (
+          <button 
+            key={path} 
+            onClick={() => navigate(path)} 
+            className={`bottom-nav-item${active ? ' active' : ''}`}
+            aria-label={label}
+          >
+            <Icon 
+              size={24} 
+              weight={active ? 'fill' : 'bold'} 
+              style={{ transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)', transform: active ? 'scale(1.1)' : 'scale(1)' }}
+            />
+            <span>{label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 };

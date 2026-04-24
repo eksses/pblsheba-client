@@ -42,7 +42,7 @@ const JobPostStep = ({ formData, set, t }) => {
             value={formData.roleCode} 
             onChange={e => set('roleCode', e.target.value)}
           >
-            {['SO', 'ASM', 'RSM', 'DSM', 'NSM', 'D.CMO'].map(v => (
+            {['FA', 'UM', 'BM'].map(v => (
               <option key={v} value={v}>{v}</option>
             ))}
           </select>
