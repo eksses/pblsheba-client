@@ -8,11 +8,17 @@ import {
 import { useAuthStore } from '../store/useAuthStore';
 import ShellLayout from '../layouts/ShellLayout';
 import StatusBadge from '../components/ui/StatusBadge';
+import { requestNotificationPermission } from '../utils/push';
 
 const DashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    // Request notification permission on dashboard load
+    requestNotificationPermission();
+  }, []);
 
   const hour = new Date().getHours();
   const [GreetIcon, greeting] = hour < 12
