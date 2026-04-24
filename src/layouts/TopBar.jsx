@@ -25,7 +25,11 @@ const TopBar = () => {
 
   return (
     <div className="inner-topbar">
-      <div className="inner-topbar-brand" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div 
+        className="inner-topbar-brand" 
+        onClick={() => navigate('/')}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+      >
         <img src="/logo.png" alt="Logo" style={{ width: 28, height: 28, borderRadius: 6 }} />
         PBL Sheba
       </div>
