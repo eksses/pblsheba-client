@@ -1,24 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { 
   SunHorizon, Sun, Moon, IdentificationCard, 
-  ClipboardText, MagnifyingGlass, Leaf, House, ShieldCheck 
+  ClipboardText, MagnifyingGlass, Leaf, House, ShieldCheck,
+  BellRinging
 } from '@phosphor-icons/react';
 import { useAuthStore } from '../store/useAuthStore';
 import ShellLayout from '../layouts/ShellLayout';
 import StatusBadge from '../components/ui/StatusBadge';
-import { requestNotificationPermission } from '../utils/push';
+import { subscribeUserToPush } from '../utils/push';
 
 const DashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const [pushStatus, setPushStatus] = useState('idle');
 
   React.useEffect(() => {
-    // Request notification permission on dashboard load
-    requestNotificationPermission();
+    if ('Notification' in window && Notification.permission === 'granted') {
+      subscribeUserToPush().then(() => setPushStatus('subscribed'));
+    }
   }, []);
+
+  const handleEnableNotifications = async () => {
+    setPushStatus('requesting');
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        await subscribeUserToPush();
+        setPushStatus('subscribed');
+      } else {
+        setPushStatus('denied');
+      }
+    } catch (err) {
+      console.error('Notification setup failed:', err);
+      setPushStatus('error');
+    }
+  };
+
+  const showNotifBanner = 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied';
 
   const hour = new Date().getHours();
   const [GreetIcon, greeting] = hour < 12
@@ -51,6 +72,22 @@ const DashboardPage = () => {
               </div>
             </div>
           </div>
+
+          {showNotifBanner && (
+            <button
+              onClick={handleEnableNotifications}
+              disabled={pushStatus === 'requesting'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                width: '100%', padding: '14px 18px', marginBottom: 20,
+                background: 'var(--green-light, #1a2e1a)', border: '1px solid var(--green, #2e7d32)', borderRadius: 10,
+                color: 'var(--green, #a5d6a7)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600
+              }}
+            >
+              <BellRinging size={20} weight="fill" />
+              {pushStatus === 'requesting' ? 'Enabling...' : 'Enable Push Notifications'}
+            </button>
+          )}
 
           {}
           <div className="stat-row">
