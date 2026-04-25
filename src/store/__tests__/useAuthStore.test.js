@@ -1,47 +1,41 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useAuthStore } from '../useAuthStore';
-import axiosClient from '../../api/axiosClient';
 
-vi.mock('../../api/axiosClient');
+// Mock persist middleware by clearing it manually if needed, 
+// or just testing the state transitions.
 
 describe('useAuthStore', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    // Reset Zustand state manually if needed, or just rely on fresh imports if possible
-    // For Zustand, we might need a reset pattern.
+    useAuthStore.setState({ user: null, token: null, isAuthenticated: false });
+    localStorage.clear();
   });
 
   it('should initialize with default values', () => {
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(false);
     expect(state.user).toBe(null);
-    expect(state.loading).toBe(false);
   });
 
-  it('should login successfully', async () => {
+  it('should login successfully (state update)', () => {
     const mockUser = { id: '1', name: 'John' };
     const mockToken = 'valid-token';
-    axiosClient.post.mockResolvedValueOnce({ 
-      data: { user: mockUser, token: mockToken } 
-    });
-
-    await useAuthStore.getState().login('01712345678', 'password');
+    
+    useAuthStore.getState().login(mockUser, mockToken);
 
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(true);
     expect(state.user).toEqual(mockUser);
-    expect(localStorage.getItem('pbl_token')).toBe(mockToken);
+    expect(state.token).toBe(mockToken);
   });
 
   it('should logout and clear state', () => {
-    localStorage.setItem('pbl_token', 'some-token');
-    useAuthStore.setState({ isAuthenticated: true, user: { id: '1' } });
+    useAuthStore.setState({ isAuthenticated: true, user: { id: '1' }, token: 'secret' });
 
     useAuthStore.getState().logout();
 
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(false);
     expect(state.user).toBe(null);
-    expect(localStorage.getItem('pbl_token')).toBe(null);
+    expect(state.token).toBe(null);
   });
 });
