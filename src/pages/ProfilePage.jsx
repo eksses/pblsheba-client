@@ -101,14 +101,16 @@ const ProfilePage = () => {
 
           <button 
             onClick={handleDownloadPdf} 
-            disabled={generatingPdf} 
+            disabled={generatingPdf || user.status !== 'approved'} 
             className="btn btn-outline btn-full" 
             style={{ marginBottom: 20, height: 44 }}
           >
             {generatingPdf ? (
-              <><Spinner size={18} /> Generating PDF...</>
+              <><Spinner size={18} /> {t('generating_pdf') || 'Generating PDF...'}</>
+            ) : user.status !== 'approved' ? (
+              <><IdentificationCard size={18} weight="bold" /> {t('verification_required_id') || 'Verification Required'}</>
             ) : (
-              <><DownloadSimple size={18} weight="bold" /> Download ID Card</>
+              <><DownloadSimple size={18} weight="bold" /> {t('download_id_card') || 'Download ID Card'}</>
             )}
           </button>
 

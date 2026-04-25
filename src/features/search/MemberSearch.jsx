@@ -4,6 +4,8 @@ import { MagnifyingGlass, CheckCircle } from '@phosphor-icons/react';
 import axiosClient from '../../api/axiosClient';
 import StatusBadge from '../../components/ui/StatusBadge';
 
+import Skeleton from '../../components/ui/Skeleton';
+
 const MemberSearch = ({ isPublic = false }) => {
   const { t } = useTranslation();
   const [q, setQ] = useState({ name: '', fatherName: '', nid: '' });
@@ -91,8 +93,10 @@ const MemberSearch = ({ isPublic = false }) => {
       </div>
 
       {}
-      {loading && [1, 2].map(i => (
-        <div key={i} className="shimmer" style={{ height: 66, marginBottom: 8, opacity: 1 - i * 0.3 }} />
+      {loading && [1, 2, 3].map(i => (
+        <div key={i} style={{ marginBottom: 10 }}>
+          <Skeleton height="66px" borderRadius="12px" />
+        </div>
       ))}
       
       {!loading && results && results.length > 0 && (

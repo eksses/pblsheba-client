@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Share, Download, X } from 'lucide-react';
+import { Export, DownloadSimple, X } from '@phosphor-icons/react';
 
 const AddToHomeScreen = () => {
   const { t } = useTranslation();
@@ -9,7 +9,6 @@ const AddToHomeScreen = () => {
   const [platform, setPlatform] = useState('');
 
   useEffect(() => {
-    // Detect platform
     const userAgent = window.navigator.userAgent.toLowerCase();
     if (/iphone|ipad|ipod/.test(userAgent)) {
       setPlatform('ios');
@@ -17,25 +16,20 @@ const AddToHomeScreen = () => {
       setPlatform('android');
     }
 
-    // Check if already installed
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    
-    // Hide prompt if already installed or dismissed this session
     const isDismissed = sessionStorage.getItem('pwa_prompt_dismissed');
     if (isStandalone || isDismissed) return;
 
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // Show prompt after a short delay to not annoy the user immediately
-      setTimeout(() => setShowPrompt(true), 3000);
+      setTimeout(() => setShowPrompt(true), 4000);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
 
-    // For iOS, show it manually since they don't support beforeinstallprompt
     if (/iphone|ipad|ipod/.test(userAgent) && !isStandalone && !isDismissed) {
-      setTimeout(() => setShowPrompt(true), 5000);
+      setTimeout(() => setShowPrompt(true), 6000);
     }
 
     return () => window.removeEventListener('beforeinstallprompt', handler);
@@ -61,27 +55,31 @@ const AddToHomeScreen = () => {
   return (
     <div className="pwa-prompt fade-up">
       <button className="pwa-close" onClick={dismissPrompt} aria-label="Close">
-        <X size={18} />
+        <X size={14} weight="bold" />
       </button>
       
       <div className="pwa-icon">
-        <img src="/logo.png" alt="Logo" />
+        <img src="/logo.png" alt="PBL Sheba" />
       </div>
 
       <div className="pwa-content">
         <h3>{t('brand_name')}</h3>
-        <p>{platform === 'ios' ? 'Install this app on your iPhone: tap share and "Add to Home Screen"' : 'Install our app for a faster, better experience'}</p>
+        <p>
+          {platform === 'ios' 
+            ? t('pwa_install_ios', 'Tap share and "Add to Home Screen" to install.') 
+            : t('pwa_install_android', 'Install our app for a faster experience.')}
+        </p>
       </div>
 
       {platform === 'android' && deferredPrompt ? (
-        <button className="btn btn-primary btn-sm" onClick={handleInstall}>
-          <Download size={16} />
-          Install
+        <button className="btn btn-primary btn-sm" onClick={handleInstall} style={{ padding: '0 12px', height: 32, fontSize: '0.75rem' }}>
+          <DownloadSimple size={16} weight="bold" />
+          {t('install', 'Install')}
         </button>
       ) : platform === 'ios' ? (
         <div className="ios-hint">
-          <Share size={16} />
-          <span>Tap Share</span>
+          <Export size={20} weight="bold" />
+          <span>{t('tap_share', 'Share')}</span>
         </div>
       ) : null}
     </div>
