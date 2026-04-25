@@ -137,6 +137,18 @@ const ProfilePage = () => {
               <span className="data-label"><Phone size={13} /> {t('phone') || 'Phone'}</span>
               <span className="data-value mono">{user.phone || '—'}</span>
             </div>
+            <div className="data-row">
+              <span className="data-label"><IdentificationCard size={13} /> {t('dob') || 'Date of Birth'}</span>
+              <span className="data-value">{user.dob ? new Date(user.dob).toLocaleDateString() : '—'}</span>
+            </div>
+            <div className="data-row">
+              <span className="data-label"><IdentificationCard size={13} /> {t('email') || 'Email'}</span>
+              <span className="data-value">{user.email || '—'}</span>
+            </div>
+            <div className="data-row">
+              <span className="data-label"><IdentificationCard size={13} /> {t('address') || 'Address'}</span>
+              <span className="data-value">{user.address || '—'}</span>
+            </div>
           </div>
 
           {}

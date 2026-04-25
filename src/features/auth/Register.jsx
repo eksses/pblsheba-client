@@ -17,7 +17,7 @@ const Register = () => {
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [form, setForm] = useState({
-    name: '', fatherName: '', dob: '1990-01-01', nid: '', phone: '',
+    name: '', fatherName: '', dob: '1990-01-01', nid: '', phone: '', email: '', address: '',
     paymentNumber: '', password: '', paymentMethod: '', trxId: '', image: null
   });
 
@@ -118,7 +118,10 @@ const Register = () => {
               {[
                 { label: 'Full Name *', key: 'name', type: 'text', ph: 'As per NID card' },
                 { label: "Father's Name", key: 'fatherName', type: 'text', ph: "Father's / husband's name" },
+                { label: 'Email', key: 'email', type: 'email', ph: 'example@mail.com' },
+                { label: 'Address', key: 'address', type: 'text', ph: 'Current residential address' },
                 { label: 'National ID *', key: 'nid', type: 'text', ph: 'NID number' },
+                { label: 'Date of Birth *', key: 'dob', type: 'date', ph: '' },
               ].map(({ label, key, type, ph }) => (
                 <div className="field-group" key={key}>
                   <label className="field-label">{label}</label>
