@@ -3,6 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import AppRoutes from './routes/AppRoutes';
+import DebugPanel from './components/DebugPanel';
 import './i18n';
 
 /**
@@ -16,6 +17,7 @@ export default function App() {
       <ToastProvider>
         <Router>
           <AppRoutes />
+          <DebugPanel />
         </Router>
       </ToastProvider>
     </ErrorBoundary>
