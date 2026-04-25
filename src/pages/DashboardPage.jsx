@@ -49,6 +49,17 @@ const DashboardPage = () => {
     }
   }, []);
 
+  const handleTestPush = async () => {
+    try {
+      await axiosClient.post('/notifications/test-push', {
+        title: 'Manual Test',
+        body: 'This is a test notification triggered by you.'
+      });
+    } catch (err) {
+      console.error('Test push failed:', err);
+    }
+  };
+
   const showNotifBanner = 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied';
 
   const hour = new Date().getHours();
@@ -145,6 +156,17 @@ const DashboardPage = () => {
                 <p className="quick-card-sub">Search the registry</p>
               </div>
             </div>
+            {Notification.permission === 'granted' && (
+              <div className="quick-card" onClick={handleTestPush}>
+                <div className="quick-card-icon" style={{ background: 'var(--purple-light)', borderColor: 'var(--purple-border)' }}>
+                  <BellRinging size={21} color="var(--purple)" weight="duotone" />
+                </div>
+                <div>
+                  <p className="quick-card-label">Test Push</p>
+                  <p className="quick-card-sub">Send a test alert</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {}
