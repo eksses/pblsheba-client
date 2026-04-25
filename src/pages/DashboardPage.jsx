@@ -9,7 +9,8 @@ import {
 import { useAuthStore } from '../store/useAuthStore';
 import ShellLayout from '../layouts/ShellLayout';
 import StatusBadge from '../components/ui/StatusBadge';
-import { subscribeUserToPush } from '../utils/push';
+import { useSubscribe } from 'react-pwa-push-notifications';
+import axiosClient from '../api/axiosClient';
 
 const DashboardPage = () => {
   const { t } = useTranslation();
@@ -17,27 +18,36 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const [pushStatus, setPushStatus] = useState('idle');
 
-  React.useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      subscribeUserToPush().then(() => setPushStatus('subscribed'));
-    }
-  }, []);
+  const { getSubscription } = useSubscribe({ 
+    publicKey: 'BGJBhJEhNlojxGRksjriJrIgH7-BCs0q4D7_rthm5AKP3tJnjBpU46mIiqZ87UNQSvcpuIlGb51ouqHrgvAOMY0' 
+  });
 
-  const handleEnableNotifications = async () => {
-    setPushStatus('requesting');
+  const handleEnableNotifications = async (isSilent = false) => {
+    if (!isSilent) setPushStatus('requesting');
     try {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        await subscribeUserToPush();
+      const subscription = await getSubscription();
+      
+      if (subscription) {
+        // Always send to server to ensure it's not "cleaned"/deleted there
+        await axiosClient.post('/notifications/subscribe', { subscription });
         setPushStatus('subscribed');
-      } else {
-        setPushStatus('denied');
+      } else if (!isSilent) {
+        setPushStatus('error');
       }
     } catch (err) {
-      console.error('Notification setup failed:', err);
-      setPushStatus('error');
+      if (!isSilent) {
+        console.error('Notification setup failed:', err);
+        setPushStatus('error');
+      }
     }
   };
+
+  React.useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      // Auto-renew/refresh silently on every dashboard visit
+      handleEnableNotifications(true);
+    }
+  }, []);
 
   const showNotifBanner = 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied';
 
