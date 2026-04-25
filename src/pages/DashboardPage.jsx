@@ -9,7 +9,6 @@ import {
 import { useAuthStore } from '../store/useAuthStore';
 import ShellLayout from '../layouts/ShellLayout';
 import StatusBadge from '../components/ui/StatusBadge';
-import { useSubscribe } from 'react-pwa-push-notifications';
 import axiosClient from '../api/axiosClient';
 
 const DashboardPage = () => {
@@ -18,25 +17,35 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const [pushStatus, setPushStatus] = useState('idle');
 
-  const { getSubscription } = useSubscribe({ 
-    publicKey: 'BGJBhJEhNlojxGRksjriJrIgH7-BCs0q4D7_rthm5AKP3tJnjBpU46mIiqZ87UNQSvcpuIlGb51ouqHrgvAOMY0' 
-  });
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
 
   const handleEnableNotifications = async (isSilent = false) => {
     if (!isSilent) setPushStatus('requesting');
     try {
-      // Force fresh start: Unsubscribe existing if any to avoid "ExistingSubscription" block
       const registration = await navigator.serviceWorker.ready;
+      
+      // Force clean start
       const existing = await registration.pushManager.getSubscription();
       if (existing) await existing.unsubscribe();
 
-      const subscription = await getSubscription();
+      const publicKey = 'BGJBhJEhNlojxGRksjriJrIgH7-BCs0q4D7_rthm5AKP3tJnjBpU46mIiqZ87UNQSvcpuIlGb51ouqHrgvAOMY0';
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      });
+
       if (subscription) {
-        // Always send to server to ensure it's not "cleaned"/deleted there
         await axiosClient.post('/notifications/subscribe', { subscription });
         setPushStatus('subscribed');
-      } else if (!isSilent) {
-        setPushStatus('error');
       }
     } catch (err) {
       if (!isSilent) {
