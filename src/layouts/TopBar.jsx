@@ -3,19 +3,21 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { House, MagnifyingGlass, ClipboardText, User, SignOut } from '@phosphor-icons/react';
 import { useAuthStore } from '../store/useAuthStore';
 import LangToggle from '../components/common/LangToggle';
+import { useTranslation } from 'react-i18next';
 
 const TopBar = () => {
   const { logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const isAt = (path) => location.pathname === path;
 
   const navItems = [
-    { path: '/', label: 'Home', icon: <House size={15}/> },
-    { path: '/search', label: 'Search', icon: <MagnifyingGlass size={15}/> },
-    { path: '/survey', label: 'Survey', icon: <ClipboardText size={15}/> },
-    { path: '/profile', label: 'Profile', icon: <User size={15}/> }
+    { path: '/', label: t('dashboard') || 'Home', icon: <House size={15}/> },
+    { path: '/search', label: t('search_members') || 'Search', icon: <MagnifyingGlass size={15}/> },
+    { path: '/survey', label: t('collect_data') || 'Survey', icon: <ClipboardText size={15}/> },
+    { path: '/profile', label: t('my_profile') || 'Profile', icon: <User size={15}/> }
   ];
 
   const handleLogout = () => {

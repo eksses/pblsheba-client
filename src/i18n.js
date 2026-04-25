@@ -4,6 +4,8 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
+      "dashboard": "Home",
+      "collect_data": "Survey",
       "debug": "debug",
       "Could not access camera. Please check permissions.": "Could not access camera. Please check permissions.",
       "2d": "2d",
@@ -12,16 +14,8 @@ const resources = {
       "generating_pdf": "generating pdf",
       "verification_required_id": "verification required id",
       "download_id_card": "download id card",
-      "../pages/HomePage": "../pages/HomePage",
-      "../features/auth/Login": "../features/auth/Login",
-      "../features/auth/Register": "../features/auth/Register",
-      "../features/career/ApplyPage": "../features/career/ApplyPage",
-      "../pages/DashboardPage": "../pages/DashboardPage",
-      "../pages/SearchPage": "../pages/SearchPage",
-      "../pages/SurveyPage": "../pages/SurveyPage",
-      "../pages/ProfilePage": "../pages/ProfilePage",
-      "../pages/NotFoundPage": "../pages/NotFoundPage",
-      "../features/auth/ForceReset": "../features/auth/ForceReset",
+
+
       "welcome": "Welcome to your community system. Manage registrations, track your impact, and help those in need across Bangladesh.",
       "verifying_title": "Verify a Member",
       "verifying_desc": "Search the public directory by name, father's name, or NID number.",

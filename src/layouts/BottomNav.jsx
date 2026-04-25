@@ -1,18 +1,20 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { House, MagnifyingGlass, ClipboardText, User } from '@phosphor-icons/react';
+import { useTranslation } from 'react-i18next';
 
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const isAt = (path) => location.pathname === path;
 
   const navItems = [
-    { path: '/', label: 'Home', icon: House },
-    { path: '/search', label: 'Search', icon: MagnifyingGlass },
-    { path: '/survey', label: 'Survey', icon: ClipboardText },
-    { path: '/profile', label: 'Profile', icon: User }
+    { path: '/', label: t('dashboard') || 'Home', icon: House },
+    { path: '/search', label: t('search_members') || 'Search', icon: MagnifyingGlass },
+    { path: '/survey', label: t('collect_data') || 'Survey', icon: ClipboardText },
+    { path: '/profile', label: t('my_profile') || 'Profile', icon: User }
   ];
 
   return (
