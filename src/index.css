@@ -727,6 +727,7 @@ input, textarea, select { font-family: inherit; }
 .fixed-actions {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
   background: rgba(255,255,255,0.95);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border-top: 1.5px solid var(--green-mid);
   padding: 12px 20px calc(12px + env(safe-area-inset-bottom));

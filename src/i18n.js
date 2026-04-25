@@ -182,7 +182,11 @@ const resources = {
       "welcome_back": "Welcome Back",
       "login_subtitle": "Sign in with your registered phone number and password.",
       "no_account_msg": "Don't have an account?",
-      "register_here": "Register here"
+      "register_here": "Register here",
+      "pwa_install_ios": "Tap share and 'Add to Home Screen' to install.",
+      "pwa_install_android": "Install our app for a faster experience.",
+      "tap_share": "Share",
+      "install": "Install"
     }
   },
   bn: {
@@ -353,7 +357,11 @@ const resources = {
       "welcome_back": "স্বাগতম",
       "login_subtitle": "আপনার নিবন্ধিত ফোন নম্বর এবং পাসওয়ার্ড দিয়ে প্রবেশ করুন।",
       "no_account_msg": "অ্যাকাউন্ট নেই?",
-      "register_here": "নিবন্ধন করুন"
+      "register_here": "নিবন্ধন করুন",
+      "pwa_install_ios": "শেয়ার বাটনে ক্লিক করে 'Add to Home Screen' এ ক্লিক করুন।",
+      "pwa_install_android": "দ্রুত ব্যবহারের জন্য অ্যাপটি ইনস্টল করুন।",
+      "tap_share": "শেয়ার",
+      "install": "ইনস্টল"
     }
   }
 };
