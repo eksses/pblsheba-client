@@ -28,11 +28,13 @@ const Login = () => {
     }
   };
 
+  const { t } = useTranslation();
+
   return (
     <div className="auth-page fade-up">
       <div className="auth-topbar">
         <button className="auth-back" onClick={() => navigate(-1)}>
-          <CaretLeft size={15} weight="bold" /> Back
+          <CaretLeft size={15} weight="bold" /> {t('back')}
         </button>
         <div style={{ marginLeft: 'auto' }}>
           <LangToggle />
@@ -43,8 +45,8 @@ const Login = () => {
           <div className="auth-logo" style={{ background: 'none', width: 'auto', height: 'auto' }}>
             <img src="/logo.png" alt="PBL Sheba" style={{ width: 48, height: 48, borderRadius: 12 }} />
           </div>
-          <h1 className="auth-title">Welcome back</h1>
-          <p className="auth-sub">Sign in with your registered phone number and password.</p>
+          <h1 className="auth-title">{t('welcome_back')}</h1>
+          <p className="auth-sub">{t('login_subtitle')}</p>
 
           {error && (
             <div className="alert-error">
@@ -54,7 +56,7 @@ const Login = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="field-group">
-              <label className="field-label">Phone Number</label>
+              <label className="field-label">{t('phone')}</label>
               <div className="input-icon-wrap">
                 <Phone size={16} />
                 <input 
@@ -69,7 +71,7 @@ const Login = () => {
               </div>
             </div>
             <div className="field-group" style={{ marginBottom: 24 }}>
-              <label className="field-label">Password</label>
+              <label className="field-label">{t('password')}</label>
               <div className="input-icon-wrap">
                 <LockKey size={16} />
                 <input 
@@ -87,7 +89,7 @@ const Login = () => {
                 <Spinner size={18} style={{ animation: 'spin 1s linear infinite' }} />
               ) : (
                 <>
-                  <SignIn size={17} /> Sign In
+                  <SignIn size={17} /> {t('sign_in')}
                 </>
               )}
             </button>
@@ -95,8 +97,8 @@ const Login = () => {
 
           <div className="auth-divider" />
           <p className="auth-footer-text">
-            Don't have an account?{' '}
-            <span className="auth-footer-link" onClick={() => navigate('/register')}>Register here</span>
+            {t('no_account_msg')}{' '}
+            <span className="auth-footer-link" onClick={() => navigate('/register')}>{t('register_here')}</span>
           </p>
         </div>
       </div>

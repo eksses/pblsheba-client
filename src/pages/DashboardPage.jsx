@@ -96,11 +96,11 @@ const DashboardPage = () => {
   const showNotifBanner = 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied';
 
   const hour = new Date().getHours();
-  const [GreetIcon, greeting] = hour < 12
-    ? [SunHorizon, 'Good morning']
+  const [GreetIcon, greetingKey] = hour < 12
+    ? [SunHorizon, 'good_morning']
     : hour < 18
-      ? [Sun, 'Good afternoon']
-      : [Moon, 'Good evening'];
+      ? [Sun, 'good_afternoon']
+      : [Moon, 'good_evening'];
 
   if (!user) return null;
 
@@ -119,7 +119,7 @@ const DashboardPage = () => {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p className="profile-greeting">
                   <GreetIcon size={13} weight="fill" color="var(--green)" />
-                  {greeting}
+                  {t(greetingKey)}
                 </p>
                 <h2 className="profile-name">{user.name}</h2>
                 <StatusBadge status={user.status} />
@@ -146,29 +146,29 @@ const DashboardPage = () => {
           {}
           <div className="stat-row">
             <div className="stat-pill accent">
-              <p className="stat-label">Status</p>
+              <p className="stat-label">{t('verified_status')}</p>
               <p className="stat-value" style={{ textTransform: 'capitalize' }}>{user.status || 'pending'}</p>
             </div>
             <div className="stat-pill">
-              <p className="stat-label">NID</p>
+              <p className="stat-label">{t('nid')}</p>
               <p className="stat-value" style={{ fontFamily: 'monospace', fontSize: '0.78rem' }}>{user.nid || '—'}</p>
             </div>
             <div className="stat-pill">
-              <p className="stat-label">Phone</p>
+              <p className="stat-label">{t('phone')}</p>
               <p className="stat-value" style={{ fontSize: '0.78rem' }}>{user.phone || '—'}</p>
             </div>
           </div>
 
           {}
-          <span className="section-eyebrow-sm">Quick Actions</span>
+          <span className="section-eyebrow-sm">{t('quick_actions', 'Quick Actions')}</span>
           <div className="quick-grid">
             <div className="quick-card" onClick={() => navigate('/profile')}>
               <div className="quick-card-icon">
                 <IdentificationCard size={21} color="var(--green)" weight="duotone" />
               </div>
               <div>
-                <p className="quick-card-label">My Records</p>
-                <p className="quick-card-sub">View &amp; request corrections</p>
+                <p className="quick-card-label">{t('my_profile')}</p>
+                <p className="quick-card-sub">{t('view_profile_btn')}</p>
               </div>
             </div>
             <div className="quick-card" onClick={() => navigate('/survey')}>
@@ -176,8 +176,8 @@ const DashboardPage = () => {
                 <ClipboardText size={21} color="var(--amber)" weight="duotone" />
               </div>
               <div>
-                <p className="quick-card-label">Survey</p>
-                <p className="quick-card-sub">Submit socio-economic data</p>
+                <p className="quick-card-label">{t('survey')}</p>
+                <p className="quick-card-sub">{t('submit_survey')}</p>
               </div>
             </div>
             <div className="quick-card" onClick={() => navigate('/search')}>
@@ -185,8 +185,8 @@ const DashboardPage = () => {
                 <MagnifyingGlass size={21} color="var(--blue)" weight="duotone" />
               </div>
               <div>
-                <p className="quick-card-label">Verify Member</p>
-                <p className="quick-card-sub">Search the registry</p>
+                <p className="quick-card-label">{t('verify_members')}</p>
+                <p className="quick-card-sub">{t('search_members')}</p>
               </div>
             </div>
             {Notification.permission === 'granted' && (
@@ -199,15 +199,15 @@ const DashboardPage = () => {
                   <BellRinging size={21} color="var(--purple)" weight="duotone" />
                 </div>
                 <div>
-                  <p className="quick-card-label">{testPushLoading ? 'Sending...' : 'Test Push'}</p>
-                  <p className="quick-card-sub">{testPushLoading ? 'Please wait' : 'Send a test alert'}</p>
+                  <p className="quick-card-label">{testPushLoading ? t('saving') : t('test_push', 'Test Push')}</p>
+                  <p className="quick-card-sub">{t('security_action_required')}</p>
                 </div>
               </div>
             )}
           </div>
 
           {}
-          <span className="section-eyebrow-sm">About</span>
+          <span className="section-eyebrow-sm">{t('about', 'About')}</span>
           <div className="data-card">
             <div className="data-card-header">
               <Leaf size={13} weight="fill" color="var(--green)" />

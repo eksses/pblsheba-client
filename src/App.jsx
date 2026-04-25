@@ -5,6 +5,7 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import AppRoutes from './routes/AppRoutes';
 import DebugPanel from './components/DebugPanel';
 import './i18n';
+import AddToHomeScreen from './components/common/AddToHomeScreen';
 
 /**
  * Entry point for the PBL Sheba Client Application.
@@ -17,6 +18,7 @@ export default function App() {
       <ToastProvider>
         <Router>
           <AppRoutes />
+          <AddToHomeScreen />
           <DebugPanel />
         </Router>
       </ToastProvider>

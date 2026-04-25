@@ -47,7 +47,7 @@ const SurveyForm = () => {
       )}
 
       <p style={{ fontSize: '0.85rem', color: 'var(--grey-500)', marginBottom: 20 }}>
-        Please provide accurate information for the society's welfare programs.
+        {t('survey_description', 'Please provide accurate information for the society\'s welfare programs.')}
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
