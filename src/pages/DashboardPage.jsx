@@ -55,14 +55,19 @@ const DashboardPage = () => {
     if (testPushLoading) return;
     setTestPushLoading(true);
     try {
-      await axiosClient.post('/notifications/test-push', {
+      const response = await axiosClient.post('/notifications/test-push', {
         title: 'Manual Test',
         body: 'This is a test notification triggered by you.'
       });
-      // Small delay to show "Sent" state
-      setTimeout(() => setTestPushLoading(false), 2000);
+      
+      // Alert the result so we can see what the server says
+      const { delivery } = response.data;
+      alert(`Server Response: Sent=${delivery.sent}, Failed=${delivery.failed}, Cleaned=${delivery.cleaned}`);
+      
+      setTimeout(() => setTestPushLoading(false), 1000);
     } catch (err) {
       console.error('Test push failed:', err);
+      alert('Test push failed: ' + (err.response?.data?.message || err.message));
       setTestPushLoading(false);
     }
   };
