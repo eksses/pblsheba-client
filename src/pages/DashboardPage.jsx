@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -10,15 +10,88 @@ import { useAuthStore } from '../store/useAuthStore';
 import ShellLayout from '../layouts/ShellLayout';
 import StatusBadge from '../components/ui/StatusBadge';
 import axiosClient from '../api/axiosClient';
-import "@magicbell/react/styles/webpush-button.css";
-import MagicBellProvider from "@magicbell/react/context-provider";
-import WebPushButton from "@magicbell/react/webpush-button";
 
 const DashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const magicBellToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2VtYWlsIjoic2hhbWlyYmh1aXlhbjJAZ21haWwuY29tIiwidXNlcl9leHRlcm5hbF9pZCI6bnVsbCwiYXBpX2tleSI6InBrX1RHNDFuM3I0OTF2ZDRGOUJPRzAxXzM2MzEwMjgyMDIiLCJpYXQiOjE3NzcxMDU0MDMsImV4cCI6MTc3NzE5MTgwM30.aX6fePvT8r1Pvzc-X3N3JVZruY0Bc8UlHjOx9N_Sqs8";
+  const [pushStatus, setPushStatus] = useState('idle');
+
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
+  const handleEnableNotifications = async (isSilent = false) => {
+    if (!isSilent) setPushStatus('requesting');
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      
+      // Force clean start
+      const existing = await registration.pushManager.getSubscription();
+      if (existing) await existing.unsubscribe();
+
+      const publicKey = 'BGJBhJEhNlojxGRksjriJrIgH7-BCs0q4D7_rthm5AKP3tJnjBpU46mIiqZ87UNQSvcpuIlGb51ouqHrgvAOMY0';
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      });
+
+      if (subscription) {
+        await axiosClient.post('/notifications/subscribe', { subscription });
+        setPushStatus('subscribed');
+      }
+    } catch (err) {
+      if (!isSilent) {
+        console.error('Notification setup failed:', err);
+        setPushStatus('error');
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    const initPush = () => {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        handleEnableNotifications(true);
+      }
+    };
+
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      initPush();
+    } else {
+      window.addEventListener('sw-ready', initPush);
+    }
+    return () => window.removeEventListener('sw-ready', initPush);
+  }, []);
+
+  const [testPushLoading, setTestPushLoading] = useState(false);
+
+  const handleTestPush = async () => {
+    if (testPushLoading) return;
+    setTestPushLoading(true);
+    try {
+      const response = await axiosClient.post('/notifications/test-push', {
+        title: 'Manual Test',
+        body: 'This is a test notification triggered by you.'
+      });
+      
+      // Alert the result so we can see what the server says
+      const { delivery } = response.data;
+      alert(`Server Response: Sent=${delivery.sent}, Failed=${delivery.failed}, Cleaned=${delivery.cleaned}`);
+      
+      setTimeout(() => setTestPushLoading(false), 1000);
+    } catch (err) {
+      console.error('Test push failed:', err);
+      alert('Test push failed: ' + (err.response?.data?.message || err.message));
+      setTestPushLoading(false);
+    }
+  };
 
   const showNotifBanner = 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied';
 
@@ -54,25 +127,21 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <MagicBellProvider token={magicBellToken}>
-            <div style={{ marginBottom: 20 }}>
-              <WebPushButton
-                className="magicbell-button"
-                renderLabel={({ status, error }) => (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                    <BellRinging size={20} weight="fill" />
-                    <span>
-                      {error 
-                        ? `Error: ${error}` 
-                        : status === "success" 
-                          ? "Push Notifications Enabled" 
-                          : "Enable Push Notifications"}
-                    </span>
-                  </div>
-                )}
-              />
-            </div>
-          </MagicBellProvider>
+          {showNotifBanner && (
+            <button
+              onClick={handleEnableNotifications}
+              disabled={pushStatus === 'requesting'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                width: '100%', padding: '14px 18px', marginBottom: 20,
+                background: 'var(--green-light, #1a2e1a)', border: '1px solid var(--green, #2e7d32)', borderRadius: 10,
+                color: 'var(--green, #a5d6a7)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600
+              }}
+            >
+              <BellRinging size={20} weight="fill" />
+              {pushStatus === 'requesting' ? 'Enabling...' : 'Enable Push Notifications'}
+            </button>
+          )}
 
           {}
           <div className="stat-row">
