@@ -13,8 +13,20 @@ createRoot(document.getElementById('root')).render(
 // Register Service Worker for Push Notifications
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
-      .then(reg => console.log('Service Worker registered:', reg))
-      .catch(err => console.error('Service Worker registration failed:', err));
+    // Force unregister all old workers to ensure fresh version
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+      
+      // Register fresh
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+        .then(reg => {
+          console.log('Service Worker registered successfully:', reg);
+          // Force update check
+          reg.update();
+        })
+        .catch(err => console.error('Service Worker registration failed:', err));
+    });
   });
 }
