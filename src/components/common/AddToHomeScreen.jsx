@@ -17,7 +17,13 @@ const AddToHomeScreen = () => {
     }
 
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    const isDismissed = sessionStorage.getItem('pwa_prompt_dismissed');
+    let isDismissed = false;
+    try {
+      isDismissed = sessionStorage.getItem('pwa_prompt_dismissed') === 'true';
+    } catch (e) {
+      console.warn('Session storage blocked');
+    }
+    
     if (isStandalone || isDismissed) return;
 
     const handler = (e) => {
@@ -47,7 +53,11 @@ const AddToHomeScreen = () => {
 
   const dismissPrompt = () => {
     setShowPrompt(false);
-    sessionStorage.setItem('pwa_prompt_dismissed', 'true');
+    try {
+      sessionStorage.setItem('pwa_prompt_dismissed', 'true');
+    } catch (e) {
+      // Fallback if storage is blocked
+    }
   };
 
   if (!showPrompt) return null;

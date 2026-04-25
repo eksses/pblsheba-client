@@ -222,6 +222,7 @@ const ImageCapture = ({ onImageChange, currentImage }) => {
           border-radius: 50%;
           background: rgba(255,255,255,0.2);
           backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
           color: white;
           border: none;
           display: flex;
