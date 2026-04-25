@@ -49,14 +49,21 @@ const DashboardPage = () => {
     }
   }, []);
 
+  const [testPushLoading, setTestPushLoading] = useState(false);
+
   const handleTestPush = async () => {
+    if (testPushLoading) return;
+    setTestPushLoading(true);
     try {
       await axiosClient.post('/notifications/test-push', {
         title: 'Manual Test',
         body: 'This is a test notification triggered by you.'
       });
+      // Small delay to show "Sent" state
+      setTimeout(() => setTestPushLoading(false), 2000);
     } catch (err) {
       console.error('Test push failed:', err);
+      setTestPushLoading(false);
     }
   };
 
@@ -157,13 +164,17 @@ const DashboardPage = () => {
               </div>
             </div>
             {Notification.permission === 'granted' && (
-              <div className="quick-card" onClick={handleTestPush}>
+              <div 
+                className={`quick-card ${testPushLoading ? 'loading' : ''}`} 
+                onClick={handleTestPush}
+                style={{ opacity: testPushLoading ? 0.7 : 1 }}
+              >
                 <div className="quick-card-icon" style={{ background: 'var(--purple-light)', borderColor: 'var(--purple-border)' }}>
                   <BellRinging size={21} color="var(--purple)" weight="duotone" />
                 </div>
                 <div>
-                  <p className="quick-card-label">Test Push</p>
-                  <p className="quick-card-sub">Send a test alert</p>
+                  <p className="quick-card-label">{testPushLoading ? 'Sending...' : 'Test Push'}</p>
+                  <p className="quick-card-sub">{testPushLoading ? 'Please wait' : 'Send a test alert'}</p>
                 </div>
               </div>
             )}
