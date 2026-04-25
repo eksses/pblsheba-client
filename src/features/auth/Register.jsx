@@ -14,6 +14,8 @@ const Register = () => {
   const [step, setStep] = useState(1);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [form, setForm] = useState({
     name: '', fatherName: '', dob: '1990-01-01', nid: '', phone: '',
     paymentNumber: '', password: '', paymentMethod: '', trxId: '', image: null
@@ -33,20 +35,34 @@ const Register = () => {
   const submit = async () => {
     if (!form.trxId) return toast.error('Transaction ID is required.');
     setLoading(true);
+    setUploadProgress(10);
+    
     try {
       const fd = new FormData();
       Object.keys(form).forEach(k => {
         if (form[k] !== null) fd.append(k, form[k]);
       });
+
+      // Simple progress simulation for UX
+      const interval = setInterval(() => {
+        setUploadProgress(prev => (prev < 90 ? prev + 10 : prev));
+      }, 400);
+
       await axiosClient.post('/auth/register', fd, { 
         headers: { 'Content-Type': 'multipart/form-data' } 
       });
-      toast.success(t('registration_success') || 'Submitted! Await admin approval.');
-      navigate('/');
+
+      clearInterval(interval);
+      setUploadProgress(100);
+      setSuccess(true);
+      
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
     } catch (err) { 
       toast.error(err.response?.data?.message || 'Registration failed.'); 
-    } finally { 
-      setLoading(false); 
+      setLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -55,6 +71,29 @@ const Register = () => {
 
   return (
     <div className="auth-page fade-up">
+      {(loading || success) && (
+        <div className="upload-overlay">
+          {!success ? (
+            <>
+              <div className="progress-container">
+                <div className="progress-bar" style={{ width: `${uploadProgress}%` }} />
+              </div>
+              <p className="upload-status-text">Submitting Registration...</p>
+              <p className="upload-sub-text">Please don't close the app</p>
+            </>
+          ) : (
+            <>
+              <div className="upload-success-icon">
+                <CheckFat size={40} weight="fill" />
+              </div>
+              <h1 className="auth-title">Registration Submitted!</h1>
+              <p className="auth-sub" style={{ marginBottom: 0 }}>
+                Please await admin approval. You will be redirected shortly.
+              </p>
+            </>
+          )}
+        </div>
+      )}
       <div className="auth-topbar">
         <button className="auth-back" onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)}>
           <CaretLeft size={15} weight="bold" /> {step > 1 ? 'Back' : 'Home'}
