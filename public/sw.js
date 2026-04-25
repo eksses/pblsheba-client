@@ -19,17 +19,17 @@ self.addEventListener('push', (event) => {
   } catch (err) {
     data = { 
       title: 'PBL Sheba Update', 
-      body: event.data ? event.data.text() : 'New notification received' 
+      message: event.data ? event.data.text() : 'New notification received' 
     };
   }
 
   const options = {
-    body: data.body || 'You have a new update',
+    body: data.message || data.body || 'You have a new update',
     icon: '/logo.png',
-    badge: '/logo.png', // Added badge for better mobile support
+    badge: '/logo.png',
     data: { url: data.url || '/' },
-    vibrate: [100, 50, 100], // Added vibration for mobile
-    requireInteraction: true // Keep it visible until user interacts
+    vibrate: [100, 50, 100],
+    requireInteraction: true
   };
 
   event.waitUntil(
