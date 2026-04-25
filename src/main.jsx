@@ -12,21 +12,24 @@ createRoot(document.getElementById('root')).render(
 
 // Register Service Worker for Push Notifications
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // Force unregister all old workers to ensure fresh version
-    navigator.serviceWorker.getRegistrations().then(registrations => {
-      for (let registration of registrations) {
-        registration.unregister();
-      }
+  window.addEventListener('load', async () => {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      // Only unregister if we need a fresh start (optional, but good for debugging)
+      // for (let reg of registrations) await reg.unregister();
+
+      const reg = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
+      console.log('Service Worker registered successfully:', reg.scope);
       
-      // Register fresh
-      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
-        .then(reg => {
-          console.log('Service Worker registered successfully:', reg);
-          // Force update check
-          reg.update();
-        })
-        .catch(err => console.error('Service Worker registration failed:', err));
-    });
+      // Wait for the service worker to be ready and active
+      await navigator.serviceWorker.ready;
+      console.log('Service Worker is ready and active.');
+      
+      // Dispatch a custom event so components know it's safe to subscribe
+      window.dispatchEvent(new CustomEvent('sw-ready'));
+      
+    } catch (err) {
+      console.error('Service Worker registration failed:', err);
+    }
   });
 }

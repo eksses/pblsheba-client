@@ -47,10 +47,18 @@ const DashboardPage = () => {
   };
 
   React.useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      // Auto-renew/refresh silently on every dashboard visit
-      handleEnableNotifications(true);
+    const initPush = () => {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        handleEnableNotifications(true);
+      }
+    };
+
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      initPush();
+    } else {
+      window.addEventListener('sw-ready', initPush);
     }
+    return () => window.removeEventListener('sw-ready', initPush);
   }, []);
 
   const [testPushLoading, setTestPushLoading] = useState(false);
