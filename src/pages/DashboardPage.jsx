@@ -57,7 +57,7 @@ const DashboardPage = () => {
 
   React.useEffect(() => {
     const initPush = () => {
-      if ('Notification' in window && Notification.permission === 'granted') {
+      if ('Notification' in window && window.Notification?.permission === 'granted') {
         handleEnableNotifications(true);
       }
     };
@@ -93,7 +93,7 @@ const DashboardPage = () => {
     }
   };
 
-  const showNotifBanner = 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied';
+  const showNotifBanner = 'Notification' in window && window.Notification?.permission !== 'granted' && window.Notification?.permission !== 'denied';
 
   const hour = new Date().getHours();
   const [GreetIcon, greetingKey] = hour < 12
@@ -189,7 +189,7 @@ const DashboardPage = () => {
                 <p className="quick-card-sub">{t('search_members')}</p>
               </div>
             </div>
-            {Notification.permission === 'granted' && (
+            {window.Notification?.permission === 'granted' && (
               <div 
                 className={`quick-card ${testPushLoading ? 'loading' : ''}`} 
                 onClick={handleTestPush}
