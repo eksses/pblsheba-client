@@ -139,7 +139,11 @@ const resources = {
       "set_new_password": "Set a new password",
       "permanent_password_desc": "You need to create a permanent password before continuing.",
       "new_password_label": "New Password",
-      "next": "Next"
+      "next": "Next",
+      "search_name_placeholder": "Search by full name...",
+      "correction_submitted": "Correction request sent!",
+      "pdf_ready": "PDF ID Card is ready!",
+      "saving": "Saving..."
     }
   },
   bn: {
@@ -279,7 +283,11 @@ const resources = {
       "set_new_password": "নতুন পাসওয়ার্ড সেট করুন",
       "permanent_password_desc": "চালিয়ে যাওয়ার আগে আপনাকে একটি স্থায়ী পাসওয়ার্ড তৈরি করতে হবে।",
       "new_password_label": "নতুন পাসওয়ার্ড",
-      "next": "পরবর্তী"
+      "next": "পরবর্তী",
+      "search_name_placeholder": "পূর্ণ নাম দিয়ে খুঁজুন...",
+      "correction_submitted": "সংশোধন অনুরোধ পাঠানো হয়েছে!",
+      "pdf_ready": "পিডিএফ আইডি কার্ড প্রস্তুত!",
+      "saving": "সংরক্ষণ হচ্ছে..."
     }
   }
 };
