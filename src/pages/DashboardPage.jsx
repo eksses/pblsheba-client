@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { 
   SunHorizon, Sun, Moon, IdentificationCard, 
   ClipboardText, MagnifyingGlass, Leaf, House, ShieldCheck,
-  BellRinging
+  BellRinging, Export
 } from '@phosphor-icons/react';
 import { useAuthStore } from '../store/useAuthStore';
 import ShellLayout from '../layouts/ShellLayout';
@@ -81,7 +81,6 @@ const DashboardPage = () => {
         body: 'This is a test notification triggered by you.'
       });
       
-      // Alert the result so we can see what the server says
       const { delivery } = response.data;
       alert(`Server Response: Sent=${delivery.sent}, Failed=${delivery.failed}, Cleaned=${delivery.cleaned}`);
       
@@ -93,7 +92,11 @@ const DashboardPage = () => {
     }
   };
 
-  const showNotifBanner = 'Notification' in window && window.Notification?.permission !== 'granted' && window.Notification?.permission !== 'denied';
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  const showIOSPrompt = isIOS && !isStandalone;
+
+  const showNotifBanner = 'Notification' in window && window.Notification?.permission !== 'granted' && window.Notification?.permission !== 'denied' && !showIOSPrompt;
 
   const hour = new Date().getHours();
   const [GreetIcon, greetingKey] = hour < 12
@@ -126,6 +129,21 @@ const DashboardPage = () => {
               </div>
             </div>
           </div>
+
+          {showIOSPrompt && (
+            <div style={{
+              background: 'var(--blue-light, #e3f2fd)', border: '1px solid var(--blue, #2196f3)', borderRadius: 10,
+              padding: '16px', marginBottom: 20, color: 'var(--blue-dark, #0d47a1)'
+            }}>
+              <p style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Export size={18} weight="bold" />
+                {t('install_pwa_ios', 'Install for Notifications')}
+              </p>
+              <p style={{ fontSize: '0.8rem', lineHeight: 1.4 }}>
+                {t('ios_pwa_instruction', 'To receive notifications on iPhone: Tap the share button and select "Add to Home Screen".')}
+              </p>
+            </div>
+          )}
 
           {showNotifBanner && (
             <button
