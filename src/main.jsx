@@ -18,23 +18,23 @@ createRoot(document.getElementById('root')).render(
 )
 
 // Register Service Worker for Push Notifications
-if ('serviceWorker' in navigator) {
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      // Only unregister if we need a fresh start (optional, but good for debugging)
-      // for (let reg of registrations) await reg.unregister();
-
       const reg = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
-      console.log('Service Worker registered successfully:', reg.scope);
-      
-      // Wait for the service worker to be ready and active
-      await navigator.serviceWorker.ready;
-      console.log('Service Worker is ready and active.');
-      
-      // Dispatch a custom event so components know it's safe to subscribe
-      window.dispatchEvent(new CustomEvent('sw-ready'));
-      
+      if (reg) {
+        console.log('Service Worker registered successfully:', reg.scope);
+        // Use a timeout for .ready as it can hang on some mobile platforms
+        const readyReg = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('SW Ready Timeout')), 5000))
+        ]).catch(() => null);
+        
+        if (readyReg) {
+          console.log('Service Worker is ready.');
+          window.dispatchEvent(new CustomEvent('sw-ready'));
+        }
+      }
     } catch (err) {
       console.error('Service Worker registration failed:', err);
     }

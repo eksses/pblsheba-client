@@ -29,13 +29,15 @@ const AddToHomeScreen = () => {
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setTimeout(() => setShowPrompt(true), 4000);
+      // Show custom banner for all platforms
+      setShowPrompt(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
 
+    // Initial check for iOS
     if (/iphone|ipad|ipod/.test(userAgent) && !isStandalone && !isDismissed) {
-      setTimeout(() => setShowPrompt(true), 6000);
+      setTimeout(() => setShowPrompt(true), 2000);
     }
 
     return () => window.removeEventListener('beforeinstallprompt', handler);
@@ -53,45 +55,51 @@ const AddToHomeScreen = () => {
 
   const dismissPrompt = () => {
     setShowPrompt(false);
-    try {
-      sessionStorage.setItem('pwa_prompt_dismissed', 'true');
-    } catch (e) {
-      // Fallback if storage is blocked
-    }
   };
 
   if (!showPrompt) return null;
 
   return (
-    <div className="pwa-prompt fade-up">
-      <button className="pwa-close" onClick={dismissPrompt} aria-label="Close">
-        <X size={14} weight="bold" />
-      </button>
-      
-      <div className="pwa-icon">
-        <img src="/logo.png" alt="PBL Sheba" />
+    <div className="pwa-prompt fade-up" style={{
+      position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)',
+      width: 'calc(100% - 40px)', maxWidth: 400, zIndex: 9999,
+      background: 'white', padding: '16px', borderRadius: 16,
+      boxShadow: '0 8px 32px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: 12
+    }}>
+      <div className="pwa-icon" style={{ flexShrink: 0 }}>
+        <img src="/logo.png" alt="PBL Sheba" style={{ width: 40, height: 40, borderRadius: 10 }} />
       </div>
 
-      <div className="pwa-content">
-        <h3>{t('brand_name')}</h3>
-        <p>
+      <div className="pwa-content" style={{ flex: 1, minWidth: 0 }}>
+        <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: '#1a1a1a' }}>{t('brand_name')}</h3>
+        <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#666', lineHeight: 1.3 }}>
           {platform === 'ios' 
             ? t('pwa_install_ios', 'Tap share and "Add to Home Screen" to install.') 
-            : t('pwa_install_android', 'Install our app for a faster experience.')}
+            : t('pwa_install_generic', 'Install our app for a faster experience.')}
         </p>
       </div>
 
-      {platform === 'android' && deferredPrompt ? (
-        <button className="btn btn-primary btn-sm" onClick={handleInstall} style={{ padding: '0 12px', height: 32, fontSize: '0.75rem' }}>
-          <DownloadSimple size={16} weight="bold" />
-          {t('install', 'Install')}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {deferredPrompt ? (
+          <button 
+            className="btn-primary" 
+            onClick={handleInstall} 
+            style={{ 
+              padding: '8px 16px', borderRadius: 8, background: 'var(--blue, #2196f3)', 
+              color: 'white', border: 'none', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer'
+            }}
+          >
+            {t('install', 'Install')}
+          </button>
+        ) : platform === 'ios' && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--blue)' }}>
+            <Export size={22} weight="bold" />
+          </div>
+        )}
+        <button onClick={dismissPrompt} style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', padding: 4 }}>
+          <X size={18} weight="bold" />
         </button>
-      ) : platform === 'ios' ? (
-        <div className="ios-hint">
-          <Export size={20} weight="bold" />
-          <span>{t('tap_share', 'Share')}</span>
-        </div>
-      ) : null}
+      </div>
     </div>
   );
 };
