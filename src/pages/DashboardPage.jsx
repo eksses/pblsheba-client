@@ -11,9 +11,11 @@ import ShellLayout from '../layouts/ShellLayout';
 import StatusBadge from '../components/ui/StatusBadge';
 import axiosClient from '../api/axiosClient';
 import { useDebugMode } from '../hooks/useDebugMode';
+import { useToast } from '../context/ToastContext';
 
 const DashboardPage = () => {
   const { t } = useTranslation();
+  const toast = useToast();
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const isDebug = useDebugMode();
@@ -109,12 +111,12 @@ const DashboardPage = () => {
       });
       
       const { delivery } = response.data;
-      alert(`Server Response: Sent=${delivery.sent}, Failed=${delivery.failed}, Cleaned=${delivery.cleaned}`);
+      toast.success(`Server Response: Sent=${delivery.sent}, Failed=${delivery.failed}`);
       
       setTimeout(() => setTestPushLoading(false), 1000);
     } catch (err) {
       console.error('Test push failed:', err);
-      alert('Test push failed: ' + (err.response?.data?.message || err.message));
+      toast.error('Test push failed: ' + (err.response?.data?.message || err.message));
       setTestPushLoading(false);
     }
   };
