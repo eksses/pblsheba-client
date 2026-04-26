@@ -10,11 +10,13 @@ import { useAuthStore } from '../store/useAuthStore';
 import ShellLayout from '../layouts/ShellLayout';
 import StatusBadge from '../components/ui/StatusBadge';
 import axiosClient from '../api/axiosClient';
+import { useDebugMode } from '../hooks/useDebugMode';
 
 const DashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const isDebug = useDebugMode();
   const [pushStatus, setPushStatus] = useState('idle');
 
   const urlBase64ToUint8Array = (base64String) => {
@@ -245,7 +247,7 @@ const DashboardPage = () => {
                 <p className="quick-card-sub">{t('search_members')}</p>
               </div>
             </div>
-            {window.Notification?.permission === 'granted' && (
+            {isDebug && window.Notification?.permission === 'granted' && (
               <div 
                 className={`quick-card ${testPushLoading ? 'loading' : ''}`} 
                 onClick={handleTestPush}
