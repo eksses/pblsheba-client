@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { 
   SunHorizon, Sun, Moon, IdentificationCard, 
   ClipboardText, MagnifyingGlass, Leaf, House, ShieldCheck,
-  BellRinging, Export
+  BellRinging, Export, X
 } from '@phosphor-icons/react';
 import { useAuthStore } from '../store/useAuthStore';
 import ShellLayout from '../layouts/ShellLayout';
@@ -56,6 +56,24 @@ const DashboardPage = () => {
         console.error('Notification setup failed:', err);
         setPushStatus('error');
       }
+    }
+  };
+
+  const handleUnsubscribe = async () => {
+    setPushStatus('requesting');
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      
+      if (subscription) {
+        await axiosClient.post('/notifications/unsubscribe', { endpoint: subscription.endpoint });
+        await subscription.unsubscribe();
+      }
+      
+      setPushStatus('idle');
+    } catch (err) {
+      console.error('Unsubscribe failed:', err);
+      setPushStatus('error');
     }
   };
 
@@ -162,6 +180,22 @@ const DashboardPage = () => {
             >
               <BellRinging size={20} weight="fill" />
               {pushStatus === 'requesting' ? 'Enabling...' : 'Enable Push Notifications'}
+            </button>
+          )}
+
+          {pushStatus === 'subscribed' && (
+            <button
+              onClick={handleUnsubscribe}
+              disabled={pushStatus === 'requesting'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                width: '100%', padding: '10px 18px', marginBottom: 20,
+                background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', borderRadius: 10,
+                color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600
+              }}
+            >
+              <X size={16} weight="bold" />
+              Disable Push Notifications
             </button>
           )}
 
