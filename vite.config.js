@@ -15,38 +15,14 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'public',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
-      includeAssets: ['app-icon.png', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/images\.cloudinary\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'cloudinary-images',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 Days
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/.*\/api\/public\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'api-public-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24, // 24 Hours
-              },
-            },
-          },
-        ],
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
       },
+      includeAssets: ['app-icon.png', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
         name: 'PBL Sheba Community',
         short_name: 'PBL Sheba',
