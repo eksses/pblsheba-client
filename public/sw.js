@@ -28,11 +28,19 @@ const logPushEvent = async (data) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
     
-    // Keep only last 50 logs
+    // Keep only last 50 logs (FIFO)
     const countRequest = store.count();
     countRequest.onsuccess = () => {
-      if (countRequest.result > 50) {
-        store.clear();
+      if (countRequest.result >= 50) {
+        const cursorRequest = store.openCursor();
+        cursorRequest.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            store.delete(cursor.key);
+            // Limit deletions to ensure we keep some history if needed, 
+            // but for a simple 50-limit, deleting the oldest one on every new insert is fine.
+          }
+        };
       }
     };
 

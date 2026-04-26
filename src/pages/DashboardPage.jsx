@@ -50,7 +50,10 @@ const DashboardPage = () => {
       }
 
       if (subscription) {
-        await axiosClient.post('/notifications/subscribe', { subscription });
+        await axiosClient.post('/notifications/subscribe', { 
+          subscription,
+          welcome: !isSilent 
+        });
         setPushStatus('subscribed');
       }
     } catch (err) {
