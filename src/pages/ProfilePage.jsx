@@ -4,8 +4,6 @@ import {
   Phone, IdentificationCard, User, PencilSimple, 
   CheckCircle, DownloadSimple 
 } from '@phosphor-icons/react';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import axiosClient from '../api/axiosClient';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToast } from '../context/ToastContext';
@@ -48,6 +46,10 @@ const ProfilePage = () => {
     if (!idCardRef.current) return;
     setGeneratingPdf(true);
     try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf')
+      ]);
       const canvas = await html2canvas(idCardRef.current, {
         scale: 3,
         useCORS: true,
