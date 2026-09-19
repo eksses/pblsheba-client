@@ -7,27 +7,61 @@ import { useToast } from '../../context/ToastContext';
 import LangToggle from '../../components/common/LangToggle';
 import ImageCapture from '../../components/ImageCapture';
 
+const DEFAULT_SETTINGS = {
+  registrationFee: 500,
+  paymentMethods: [
+    {
+      name: 'bKash',
+      number: '01322511554',
+      type: 'Personal',
+      themeColor: '#E2136E',
+      logoUrl: 'https://cdn.worldvectorlogo.com/logos/bkash.svg',
+      instructions: 'Send Money (Personal) to this number and enter TrxID'
+    }
+  ]
+};
+
+const getInitialSettings = () => {
+  try {
+    const cached = localStorage.getItem('tubd_public_settings');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && Array.isArray(parsed.paymentMethods) && parsed.paymentMethods.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (_) {}
+  return DEFAULT_SETTINGS;
+};
+
 const Register = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const toast = useToast();
   const [step, setStep] = useState(1);
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState(getInitialSettings);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [form, setForm] = useState({
-    name: '', fatherName: '', dob: '1990-01-01', nid: '', phone: '', email: '', address: '',
-    paymentNumber: '', password: '', paymentMethod: '', trxId: '', image: null
+  const [form, setForm] = useState(() => {
+    const initSet = getInitialSettings();
+    return {
+      name: '', fatherName: '', dob: '1990-01-01', nid: '', phone: '', email: '', address: '',
+      paymentNumber: '', password: '', paymentMethod: initSet?.paymentMethods?.[0]?.name || 'bKash',
+      trxId: '', image: null
+    };
   });
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   useEffect(() => {
     axiosClient.get('/public/settings').then(r => {
-      setSettings(r.data);
-      if (r.data?.paymentMethods?.length > 0) {
-        set('paymentMethod', r.data.paymentMethods[0].name);
+      if (r.data) {
+        setSettings(r.data);
+        try { localStorage.setItem('tubd_public_settings', JSON.stringify(r.data)); } catch (_) {}
+        if (r.data?.paymentMethods?.length > 0) {
+          setForm(f => f.paymentMethod ? f : ({ ...f, paymentMethod: r.data.paymentMethods[0].name }));
+        }
       }
     }).catch(() => {});
   }, []);
