@@ -33,7 +33,7 @@ const HomePage = () => {
           {t('brand_name')} — <span className="accent">Member</span> Registry
         </h1>
         <p className="hero-desc">
-          {t('welcome') || 'A secure digital platform for PBL Sheba Somaj members to register, get verified, and stay connected.'}
+          {t('welcome') || 'A secure digital platform for Trust Unity BD members to register, get verified, and stay connected.'}
         </p>
         <div className="hero-cta">
           <Link to="/register" className="btn btn-primary btn-lg">
@@ -72,7 +72,7 @@ const HomePage = () => {
       {}
       <section className="features">
         <div style={{ textAlign: 'center', maxWidth: 500, margin: '0 auto 32px' }}>
-          <p className="section-eyebrow" style={{ justifyContent: 'center' }}>Why PBL Sheba</p>
+          <p className="section-eyebrow" style={{ justifyContent: 'center' }}>Why Trust Unity BD</p>
           <h2 style={{ fontSize: '1.5rem', color: 'var(--grey-900)', marginBottom: 8 }}>Built for your community</h2>
           <p style={{ color: 'var(--grey-400)', fontSize: '0.88rem' }}>Simple, secure, and transparent — everything your society needs in one place.</p>
         </div>

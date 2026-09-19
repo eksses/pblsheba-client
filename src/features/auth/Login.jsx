@@ -44,7 +44,7 @@ const Login = () => {
       <div className="auth-body">
         <div className="auth-card">
           <div className="auth-logo" style={{ background: 'none', width: 'auto', height: 'auto' }}>
-            <img src="/logo.png" alt="PBL Sheba" style={{ width: 48, height: 48, borderRadius: 12 }} />
+            <img src="/logo.png" alt="Trust Unity BD" style={{ width: 48, height: 48, borderRadius: 12 }} />
           </div>
           <h1 className="auth-title">{t('welcome_back')}</h1>
           <p className="auth-sub">{t('login_subtitle')}</p>

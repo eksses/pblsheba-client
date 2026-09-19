@@ -67,7 +67,7 @@ const AddToHomeScreen = () => {
       boxShadow: '0 8px 32px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: 12
     }}>
       <div className="pwa-icon" style={{ flexShrink: 0 }}>
-        <img src="/logo.png" alt="PBL Sheba" style={{ width: 40, height: 40, borderRadius: 10 }} />
+        <img src="/logo.png" alt="Trust Unity BD" style={{ width: 40, height: 40, borderRadius: 10 }} />
       </div>
 
       <div className="pwa-content" style={{ flex: 1, minWidth: 0 }}>

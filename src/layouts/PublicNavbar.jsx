@@ -10,8 +10,8 @@ const PublicNavbar = () => {
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit' }}>
-        <img src="/logo.png" alt="PBL Sheba" style={{ width: 32, height: 32, borderRadius: 8 }} />
-        <span style={{ fontWeight: 900, fontSize: '1.2rem', letterSpacing: '-0.02em' }}>PBL Sheba</span>
+        <img src="/logo.png" alt="Trust Unity BD" style={{ width: 32, height: 32, borderRadius: 8 }} />
+        <span style={{ fontWeight: 900, fontSize: '1.2rem', letterSpacing: '-0.02em' }}>Trust Unity BD</span>
       </Link>
       <div className="navbar-actions">
         <LangToggle />

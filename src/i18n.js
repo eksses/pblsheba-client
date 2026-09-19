@@ -65,7 +65,7 @@ const resources = {
       "join_us_desc": "Join our community and get access to exclusive benefits.",
 
 
-      "brand_name": "PBL Sheba",
+      "brand_name": "Trust Unity BD",
       "verify_public_records": "Verify Public Records",
       "empowering_community": "Empowering Our Community",
       "register_seamlessly": "1. Register Seamlessly",
@@ -116,7 +116,7 @@ const resources = {
       "mud_house": "Mud House",
       "edit_requests": "Edit Request",
       "job_application_form": "Job Application Form",
-      "apply_professional_role": "Apply for a professional role at PBL Sheba Somaj",
+      "apply_professional_role": "Apply for a professional role at Trust Unity BD",
       "post_applied_for": "Post Applied For",
       "office_name_code": "Office Name/Code",
       "role_category": "Role Category",
@@ -241,7 +241,7 @@ const resources = {
       "join_us_desc": "আমাদের কমিউনিটিতে যোগ দিন এবং বিশেষ সুবিধা পান।",
 
 
-      "brand_name": "পিবিএল সেবা",
+      "brand_name": "ট্রাস্ট ইউনিটি বিডি",
       "verify_public_records": "পাবলিক রেকর্ড যাচাই করুন",
       "empowering_community": "আমাদের কমিউনিটিকে শক্তিশালী করছি",
       "register_seamlessly": "১. নিরবচ্ছিন্নভাবে নিবন্ধন করুন",
@@ -291,7 +291,7 @@ const resources = {
       "brick_built": "পাঁকা বাড়ি",
       "mud_house": "কাঁচা বাড়ি",
       "job_application_form": "চাকরির আবেদন ফরম",
-      "apply_professional_role": "পিবিএল সেবা সমাজ-এ পেশাদার পদের জন্য আবেদন করুন",
+      "apply_professional_role": "ট্রাস্ট ইউনিটি বিডি-তে পেশাদার পদের জন্য আবেদন করুন",
       "post_applied_for": "আবেদনকৃত পদ",
       "office_name_code": "অফিস নাম/কোড",
       "role_category": "পদবী ক্যাটাগরি",

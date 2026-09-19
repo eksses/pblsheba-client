@@ -274,11 +274,11 @@ const DashboardPage = () => {
           <div className="data-card">
             <div className="data-card-header">
               <Leaf size={13} weight="fill" color="var(--green)" />
-              PBL Sheba Somaj
+              Trust Unity BD
             </div>
             <div className="data-row">
-              <span className="data-label"><House size={14} /> Society</span>
-              <span className="data-value">PBL Sheba Somaj</span>
+              <span className="data-label"><House size={14} /> Organization</span>
+              <span className="data-value">Trust Unity BD</span>
             </div>
             <div className="data-row">
               <span className="data-label"><ShieldCheck size={14} /> Platform</span>

@@ -32,8 +32,8 @@ const TopBar = () => {
         onClick={() => navigate('/')}
         style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
       >
-        <img src="/logo.png" alt="Logo" style={{ width: 28, height: 28, borderRadius: 6 }} />
-        PBL Sheba
+        <img src="/logo.png" alt="Trust Unity BD" style={{ width: 28, height: 28, borderRadius: 6 }} />
+        Trust Unity BD
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <div className="desktop-only-flex" style={{ gap: 2 }}>

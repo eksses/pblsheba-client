@@ -8,7 +8,7 @@ import './i18n';
 import AddToHomeScreen from './components/common/AddToHomeScreen';
 
 /**
- * Entry point for the PBL Sheba Client Application.
+ * Entry point for the Trust Unity BD Client Application.
  * This file is intentionally minimal as per the "Mega Modular" architecture.
  * Features and pages are lazy-loaded within AppRoutes.
  */

@@ -24,9 +24,9 @@ export default defineConfig({
       },
       includeAssets: ['app-icon.png', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: 'PBL Sheba Community',
-        short_name: 'PBL Sheba',
-        description: 'Secure digital platform for PBL Sheba Somaj members',
+        name: 'Trust Unity BD Community',
+        short_name: 'Trust Unity BD',
+        description: 'Secure digital platform for Trust Unity BD members',
         theme_color: '#16a34a',
         background_color: '#f8fafc',
         display: 'standalone',

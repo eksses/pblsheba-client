@@ -191,7 +191,7 @@ const ProfilePage = () => {
           <div className="idc-hide">
             <div ref={idCardRef} className="id-card-export">
               <div className="idc-header">
-                <div className="idc-title">PBL Sheba Somaj</div>
+                <div className="idc-title">Trust Unity BD</div>
                 <div className="idc-subtitle">Member ID Card</div>
               </div>
               <div className="idc-body">
